@@ -1,0 +1,60 @@
+﻿<!DOCYPE HTML>
+<html>
+	<head>
+	    <title>@@TITLE@@</title>
+    	<link rel="stylesheet" href="@@PATH@@/qunit-css" media='screen'/>
+		<script type="text/javascript" src="@@PATH@@/qunit-script"></script>
+	</head>
+    <body>
+		<h1 id='qunit-header'>@@HEADER@@</h1>
+        <h2 id="qunit-banner"></h2>
+		<div id="qunit-testrunner-toolbar"></div>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+		<div id="qunit-fixture">test markup, will be hidden</div>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+
+                $.ajax({
+                    url: "@@PATH@@/tests",
+                    type: "json",
+                    success: function (data) { runTests(data) }
+                });
+
+                function runTests(data) {
+                    for (var moduleName in data.tests) {
+                        module(moduleName);
+
+                        $.each(data.tests[moduleName], function(i, testName) {
+                            test(testName, function () {
+                                executeTest(data.settings, testName)
+                            });
+                        });
+                    }
+                }
+
+                function executeTest(settings, testName) {
+                    $.ajax({
+                        url: settings.routePath + "/execute",
+                        data: {test: testName},
+                        timeout: settings.testTimeout,
+                        dataType: "json",
+                        async:false,
+                        error: function(xhr, status, errorThrown) {
+                            if (status === "timeout")
+                                ok(false, "Page timed out");
+                            else {
+                                var data = $.parseJSON(xhr.responseText).tests[0];
+                                ok(false, "Test Failed (" + data.duration + " seconds)\r" + data.message);
+                            }
+                        },
+                        success: function(data, status, xhr) {
+                            ok(true, "Test Passed (" + data.tests[0].duration + " seconds)");
+                        }
+                    });
+                }
+            });
+        </script>
+	</body>
+</html>
