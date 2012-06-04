@@ -1,4 +1,4 @@
-Crimson
+Verde
 =======
 
-Integration Test Framework for ASP.Net MVC
+Integration test and application health verification framework for ASP.Net MVC
