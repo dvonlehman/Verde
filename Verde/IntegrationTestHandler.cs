@@ -27,7 +27,7 @@ namespace Verde
 
         bool IHttpHandler.IsReusable
         {
-            get { throw new NotImplementedException(); }
+            get { return true; }
         }
 
         void IHttpHandler.ProcessRequest(HttpContext context)
@@ -107,13 +107,6 @@ namespace Verde
             {
                 return reader.ReadToEnd();
             }
-        }
-
-        private void ExecuteTest(string testName)
-        {
-            var testPackage = new TestPackage(Setup.CurrentSettings.TestsAssembly.Location);
-            testPackage.Settings["AutoNamespaceSuites"] = false;
-            var testSuite = new TestSuiteBuilder().Build(testPackage);
         }
 
         IHttpHandler IRouteHandler.GetHttpHandler(RequestContext requestContext)

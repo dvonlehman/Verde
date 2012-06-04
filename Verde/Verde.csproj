@@ -49,7 +49,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\mvc3-rtm-sources\mvc3\bin\Debug\System.Web.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -61,21 +63,23 @@
     <Compile Include="IntegrationTestHandler.cs" />
     <Compile Include="ITestGuiRenderer.cs" />
     <Compile Include="ITestRunner.cs" />
-    <Compile Include="Simulator\MvcRequestSimulator.cs" />
+    <Compile Include="Executor\MvcRequestExecutor.cs" />
+    <Compile Include="Executor\HttpHandlerUtil.cs" />
     <Compile Include="NUnitEventListener.cs" />
     <Compile Include="NUnitTestRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QUnitTestGuiRenderer.cs" />
     <Compile Include="DtoTypes.cs" />
-    <Compile Include="Simulator\RequestSimulatorSettings.cs" />
+    <Compile Include="Executor\RequestExecutorSettings.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Setup.cs" />
-    <Compile Include="Simulator\SimulatedHttpContext.cs" />
-    <Compile Include="Simulator\SimulatedHttpFileCollection.cs" />
-    <Compile Include="Simulator\SimulatedHttpRequest.cs" />
-    <Compile Include="Simulator\SimulatedHttpResponse.cs" />
-    <Compile Include="Simulator\SimulatedHttpSessionState.cs" />
-    <Compile Include="Simulator\UnvalidatedValueProviderFactory.cs" />
+    <Compile Include="Executor\ExecutorHttpContext.cs" />
+    <Compile Include="Executor\ExecutorHttpFileCollection.cs" />
+    <Compile Include="Executor\ExecutorHttpRequest.cs" />
+    <Compile Include="Executor\ExecutorHttpSessionState.cs" />
+    <Compile Include="Executor\ExecutorMvcHandler.cs" />
+    <Compile Include="Executor\UnvalidatedValueProviderFactory.cs" />
+    <Compile Include="Executor\WrapperControllerFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
