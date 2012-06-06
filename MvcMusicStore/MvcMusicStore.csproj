@@ -114,6 +114,7 @@
     <Compile Include="IntegrationTests\F002_DetailsPage.cs" />
     <Compile Include="IntegrationTests\F001_HomePage.cs" />
     <Compile Include="IntegrationTests\F004_ShoppingCart.cs" />
+    <Compile Include="IntegrationTests\F005_Checkout.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Album.cs" />
     <Compile Include="Models\Artist.cs" />

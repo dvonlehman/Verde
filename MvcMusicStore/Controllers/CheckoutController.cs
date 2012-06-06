@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using System.ComponentModel;
 using MvcMusicStore.Models;
 
 namespace MvcMusicStore.Controllers
 {
     [Authorize]
-    public class CheckoutController : Controller
+    public class CheckoutController : AsyncController
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
         const string PromoCode = "FREE";
@@ -23,19 +24,26 @@ namespace MvcMusicStore.Controllers
         // POST: /Checkout/AddressAndPayment
 
         [HttpPost]
-        public ActionResult AddressAndPayment(FormCollection values)
+        public void AddressAndPaymentAsync(FormCollection values)
         {
+            AsyncManager.OutstandingOperations.Increment();
+            var worker = new BackgroundWorker();
             var order = new Order();
-            TryUpdateModel(order);
+            bool success = true;
 
-            try
+            worker.DoWork += (sender, e) =>
             {
-                if (string.Equals(values["PromoCode"], PromoCode,
-                    StringComparison.OrdinalIgnoreCase) == false)
+                TryUpdateModel(order);
+
+                string promoCode = values["PromoCode"];
+                if (!String.IsNullOrEmpty(promoCode) && !string.Equals(promoCode, PromoCode, StringComparison.OrdinalIgnoreCase))
                 {
-                    return View(order);
+                    ModelState.AddModelError("", "Promo code is not valid.");
+                    success = false;
+                    return;
                 }
-                else
+
+                try
                 {
                     order.Username = User.Identity.Name;
                     order.OrderDate = DateTime.Now;
@@ -46,18 +54,33 @@ namespace MvcMusicStore.Controllers
 
                     //Process the order
                     var cart = ShoppingCart.GetCart(this.HttpContext);
-                    cart.CreateOrder(order);
-
-                    return RedirectToAction("Complete",
-                        new { id = order.OrderId });
+                    cart.CreateOrder(order);               
+                    success = true;
                 }
+                catch
+                {
+                    success = false;
+                }
+            };
 
-            }
-            catch
+            worker.RunWorkerCompleted += (o, e) =>
             {
-                //Invalid - redisplay with errors
-                return View(order);
-            }
+                AsyncManager.Parameters["order"] = order;
+                AsyncManager.Parameters["success"] = success;
+                AsyncManager.OutstandingOperations.Decrement();
+            };
+
+            worker.RunWorkerAsync(null);
+        }
+
+        public ActionResult AddressAndPaymentCompleted(Order order, bool success)
+        {
+            if (success)
+                return RedirectToAction("Complete",
+                   new { id = order.OrderId });
+
+            //Invalid - redisplay with errors
+            return View(order);           
         }
 
         //
