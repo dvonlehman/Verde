@@ -36,8 +36,7 @@ namespace Verde.Executor
             //if (_settings.HttpResponse == null)
             //    _settings.HttpResponse = new SimulatedHttpResponse(httpContext.Response, settings);
 
-            if (_settings.User == null)
-                this.User = DefaultIdentity;
+            this.User = _settings.User ?? DefaultIdentity;
 
             _settings.HttpRequest.RequestContext.HttpContext = this;
             _settings.HttpRequest.RequestContext.RouteData = RouteTable.Routes.GetRouteData(this);

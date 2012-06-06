@@ -23,13 +23,24 @@ namespace Verde.Executor
             this.Url = requestUrl;
         }
 
+        public RequestExecutorSettings(string path) : this(path, string.Empty)
+        { }
+
+        public RequestExecutorSettings(string path, string query)
+        {
+            var uri = new UriBuilder(HttpContext.Current.Request.Url);
+            uri.Path = path;
+            uri.Query = query;
+            this.Url = uri.Uri;
+        }
+
         /// <summary>
         /// Specify the HttpRequest. 
         /// </summary>
         /// <remarks>
         /// Generally you can leave this null and set properties like <see cref="Url"/>, <see cref="Cookies"/>, <see cref="Form"/>, etc.
         /// </remarks>
-        public HttpRequestBase HttpRequest { get; set; }
+        public HttpRequestBase HttpRequest { get; internal set; }
 
         /// <summary>
         /// The Url of the request
@@ -80,7 +91,7 @@ namespace Verde.Executor
         /// <summary>
         /// The current user
         /// </summary>
-        public IIdentity User { get; set; }
+        public IPrincipal User { get; set; }
 
         /// <summary>
         /// The content type of the request.

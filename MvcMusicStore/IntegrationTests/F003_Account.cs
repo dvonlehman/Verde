@@ -19,18 +19,15 @@ namespace MvcMusicStore.IntegrationTests
         [Test]
         public void Register_InvalidPassword_Fails()
         {
-            var url = new UriBuilder(HttpContext.Current.Request.Url);
-            url.Path = "Account/Register";
-            url.Query = string.Empty;
-
+            string invalidPassword = "1234";
             var formData = new NameValueCollection {
                 {"UserName", "Bill"},
                 {"Email", "bgates@microsoft.com"},
-                {"Password", "password991"},
-                {"ConfirmPassword", "password991"}
+                {"Password", invalidPassword},
+                {"ConfirmPassword", invalidPassword}
             };
-
-            using (var executor = new MvcRequestExecutor(new RequestExecutorSettings(url.Uri) { Form = formData }))
+                        
+            using (var executor = new MvcRequestExecutor(new RequestExecutorSettings("Account/Register") { Form = formData }))
             {
                 executor.Execute();
 
@@ -44,24 +41,21 @@ namespace MvcMusicStore.IntegrationTests
 
                 Assert.AreEqual(1, errors.Count);
 
-                string passwordError = "The password provided is invalid. Please enter a valid password value.";
+                string passwordError = "The Password must be at least 6 characters long.";
                 Assert.AreEqual(passwordError, errors[0]);
 
                 var html = new HtmlDocument();
                 html.LoadHtml(executor.ResponseText);
-                var errorMessages = html.DocumentNode.CssSelect("div.validation-summary-errors ul>li");
-                Assert.AreEqual(1, errorMessages.Count());
-                Assert.AreEqual(passwordError, errorMessages.ElementAt(0).InnerText);
+
+                var passwordErrorSpan = html.DocumentNode.CssSelect("span.field-validation-error");
+                Assert.AreEqual(1, passwordErrorSpan.Count());
+                Assert.AreEqual(passwordError, passwordErrorSpan.ElementAt(0).InnerText);
             }
         }
 
         [Test]
         public void Register_ValidInput_Redirects()
         {
-            var url = new UriBuilder(HttpContext.Current.Request.Url);
-            url.Path = "Account/Register";
-            url.Query = string.Empty;
-
             var formData = new NameValueCollection {
                 {"UserName", "ChrisColumbus"},
                 {"Email", "chrisc@genoa.es"},
@@ -71,7 +65,7 @@ namespace MvcMusicStore.IntegrationTests
 
             try
             {
-                using (var executor = new MvcRequestExecutor(new RequestExecutorSettings(url.Uri) { Form = formData }))                
+                using (var executor = new MvcRequestExecutor(new RequestExecutorSettings("Account/Register") { Form = formData }))                
                 { 
                     executor.Execute();
 

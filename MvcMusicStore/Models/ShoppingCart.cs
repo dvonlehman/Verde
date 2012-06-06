@@ -10,7 +10,7 @@ namespace MvcMusicStore.Models
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
-        string ShoppingCartId { get; set; }
+        public string ShoppingCartId { get; set; }
 
         public const string CartSessionKey = "CartId";
 
@@ -60,7 +60,7 @@ c => c.CartId == ShoppingCartId
         public int RemoveFromCart(int id)
         {
             // Get the cart
-            var cartItem = storeDB.Carts.Single(
+            var cartItem = storeDB.Carts.FirstOrDefault(
 cart => cart.CartId == ShoppingCartId
 && cart.RecordId == id);
 

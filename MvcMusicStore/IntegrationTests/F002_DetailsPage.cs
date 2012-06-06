@@ -21,11 +21,7 @@ namespace MvcMusicStore.IntegrationTests
                 .Take(1)
                 .First();
 
-            var url = new UriBuilder(HttpContext.Current.Request.Url);
-            url.Query = string.Empty;
-            url.Path = "Store/Details/" + album.AlbumId;
-
-            using (var executor = new MvcRequestExecutor(url.Uri))
+            using (var executor = new MvcRequestExecutor("Store/Details/" + album.AlbumId))
             {
                 executor.Execute();
                 Assert.IsFalse(String.IsNullOrEmpty(executor.ResponseText));

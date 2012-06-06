@@ -20,12 +20,7 @@ namespace MvcMusicStore.IntegrationTests
         [Test]
         public void Index_Load_ExpectedHtml()
         {
-            // Build the home page url from the current url.
-            var url = new UriBuilder(HttpContext.Current.Request.Url);
-            url.Path = string.Empty;
-            url.Query = "test=test";
-
-            using (var executor = new MvcRequestExecutor(url.Uri))
+            using (var executor = new MvcRequestExecutor(new RequestExecutorSettings(string.Empty)))
             {
                 executor.Execute();
 

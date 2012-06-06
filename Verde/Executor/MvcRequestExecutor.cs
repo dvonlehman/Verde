@@ -17,7 +17,11 @@ namespace Verde.Executor
     {
         private readonly HttpContextBase _httpContext;
 
-        public MvcRequestExecutor(Uri requestUrl) : this(new RequestExecutorSettings(requestUrl)) { }
+        public MvcRequestExecutor(Uri requestUrl) : this(new RequestExecutorSettings(requestUrl.ToString())) { }
+
+        public MvcRequestExecutor(string path, string query) : this(new RequestExecutorSettings(path, query)) { }
+
+        public MvcRequestExecutor(string path) : this(new RequestExecutorSettings(path)) { }
 
         public MvcRequestExecutor(RequestExecutorSettings settings)
         {
