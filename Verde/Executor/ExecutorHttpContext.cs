@@ -19,42 +19,41 @@ namespace Verde.Executor
 
         private readonly RequestExecutorSettings _settings;
         private readonly IHttpHandler _currentHandler;
+        private readonly HttpRequestBase _request;
+        private readonly HttpSessionStateBase _session;
         
         public ExecutorHttpContext(HttpContext httpContext, RequestExecutorSettings settings): base(httpContext)
         {
             _settings = settings;
 
-            if (_settings.HttpRequest == null)
-                _settings.HttpRequest = new ExecutorHttpRequest(httpContext.Request, settings);
-
-            if (_settings.SessionState == null)
-                _settings.SessionState = new ExecutorHttpSessionState(settings);
+            _request = new ExecutorHttpRequest(httpContext.Request, settings);
+            _session = new ExecutorHttpSessionState(settings);
 
             if (_settings.HttpContextItems == null)
                 _settings.HttpContextItems = new Hashtable();
 
-            //if (_settings.HttpResponse == null)
-            //    _settings.HttpResponse = new SimulatedHttpResponse(httpContext.Response, settings);
-
             this.User = _settings.User ?? DefaultIdentity;
 
-            _settings.HttpRequest.RequestContext.HttpContext = this;
-            _settings.HttpRequest.RequestContext.RouteData = RouteTable.Routes.GetRouteData(this);
+            _request.RequestContext.HttpContext = this;
+            _request.RequestContext.RouteData = RouteTable.Routes.GetRouteData(this);
         }
       
         public override HttpRequestBase Request
         {
-            get { return _settings.HttpRequest ?? base.Request; }
+            get { return _request; }
         }
-
-        //public override HttpResponseBase Response
-        //{
-        //    get { return _settings.HttpResponse ?? base.Response; }
-        //}
 
         public override HttpSessionStateBase Session
         {
-            get { return _settings.SessionState ?? base.Session; }
+            get { return _session; }
+        }
+
+        public override IDictionary Items
+        {
+            get
+            {
+                return _settings.HttpContextItems;
+            }
         }
     }     
 }

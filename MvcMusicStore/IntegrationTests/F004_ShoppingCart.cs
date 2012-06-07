@@ -51,16 +51,13 @@ namespace MvcMusicStore.IntegrationTests
         [Test]
         public void ViewCart_ExpectedHtml()
         {
-            var albumsInCart = storeDB.Albums.Take(2);
+            var albumsToCart = storeDB.Albums.Take(2);
             string userName = "DavidBowie";
 
-            var cart = new ShoppingCart { ShoppingCartId = userName };
-            cart.EmptyCart();
-            foreach (var album in albumsInCart)
-                cart.AddToCart(album);
-
+            var cart = TestUtil.AddItemsToCart(userName, albumsToCart);
+            
             var settings = new RequestExecutorSettings("ShoppingCart/Index") { 
-                User = new GenericPrincipal(new GenericIdentity(userName), null) 
+                User = TestUtil.CreateUser(userName) 
             };
 
             using (var executor = new MvcRequestExecutor(settings))
@@ -71,8 +68,8 @@ namespace MvcMusicStore.IntegrationTests
 
                     var viewModel = executor.ViewData.Model as ShoppingCartViewModel;
                     Assert.IsNotNull(viewModel);
-                    Assert.AreEqual(2, viewModel.CartItems.Count);
-                    foreach (var album in albumsInCart)
+                    Assert.AreEqual(albumsToCart.Count(), viewModel.CartItems.Count);
+                    foreach (var album in albumsToCart)
                         Assert.IsTrue(viewModel.CartItems.Any(c => c.AlbumId == album.AlbumId));
 
                     Assert.IsFalse(String.IsNullOrEmpty(executor.ResponseText));
@@ -88,18 +85,14 @@ namespace MvcMusicStore.IntegrationTests
         [Test]
         public void RemoveFromCart_ValidJson()
         {
-            var album = storeDB.Albums.Take(1).First();
-
             // Add an item to the cart so we have something to remove.
             string userName = "JimmyHendrix";
-            var cart = new ShoppingCart { ShoppingCartId = userName };
-            cart.EmptyCart();
-            cart.AddToCart(album);
+            var cart = TestUtil.AddItemsToCart(userName, storeDB.Albums.Take(1));
             var recordId = cart.GetCartItems().First().RecordId;                       
 
             var settings = new RequestExecutorSettings("ShoppingCart/RemoveFromCart/" + recordId) 
             { 
-                User = new GenericPrincipal(new GenericIdentity(userName), null), 
+                User = TestUtil.CreateUser(userName), 
                 HttpMethod = "POST"
             };
 

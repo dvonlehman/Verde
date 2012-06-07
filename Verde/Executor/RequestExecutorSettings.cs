@@ -35,14 +35,6 @@ namespace Verde.Executor
         }
 
         /// <summary>
-        /// Specify the HttpRequest. 
-        /// </summary>
-        /// <remarks>
-        /// Generally you can leave this null and set properties like <see cref="Url"/>, <see cref="Cookies"/>, <see cref="Form"/>, etc.
-        /// </remarks>
-        public HttpRequestBase HttpRequest { get; internal set; }
-
-        /// <summary>
         /// The Url of the request
         /// </summary>
         public Uri Url { get; private set; }
@@ -79,11 +71,6 @@ namespace Verde.Executor
         public Uri Referrer { get; set; }
 
         /// <summary>
-        /// The http server utility.
-        /// </summary>
-        public HttpServerUtilityBase Server { get; set; }
-
-        /// <summary>
         /// The collection of files in the request.
         /// </summary>
         public HttpFileCollectionBase Files { get; set; }
@@ -101,24 +88,9 @@ namespace Verde.Executor
         public bool IsAuthenticated { get; set; }
 
         /// <summary>
-        /// The http response.
-        /// </summary>
-        /// <remarks>
-        /// Generally it is not necessary to set this unless a custom <see cref="HttpResponseBase"/> implementation is required.
-        /// </remarks>
-        public HttpResponseBase HttpResponse { get; set; }
-
-        /// <summary>
         /// The collection of HTTP context items.
         /// </summary>
         public IDictionary HttpContextItems { get; set; }
-
-        /// <summary>
-        /// The session state.
-        /// </summary>
-        /// <remarks>Only need to set this for special circumstances where a custom implementation of <see cref="HttpSessionStateBase"/> is required.
-        /// </remarks>
-        public HttpSessionStateBase SessionState { get; set;}
 
         /// <summary>
         /// The collection of session state items.
