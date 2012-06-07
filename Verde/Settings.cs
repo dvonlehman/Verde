@@ -70,9 +70,9 @@ namespace Verde
             if (String.IsNullOrEmpty(RoutePath))
                 RoutePath = "@integrationtests";
             if (String.IsNullOrEmpty(GuiPageTitle))
-                GuiPageTitle = "MvcIntegrationTester";
+                GuiPageTitle = "Verde Integration Tester";
             if (String.IsNullOrEmpty(GuiHeaderText))
-                GuiHeaderText= "Mvc Integration Tests";
+                GuiHeaderText= "Verde Integration Tester - Powered by NUnit and QUnit";
             if (GuiRenderer == null)
                 GuiRenderer = new QUnitTestGuiRenderer();
             if (TestRunner == null)

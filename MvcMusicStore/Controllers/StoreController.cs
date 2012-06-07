@@ -11,6 +11,35 @@ namespace MvcMusicStore.Controllers
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
+        protected override void OnActionExecuted(ActionExecutedContext filterContext)
+        {
+            // Simply marking that this method fired
+            filterContext.HttpContext.Items["OnActionExecuted"] = true;
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            // Simply marking that this method fired
+            filterContext.HttpContext.Items["OnActionExecuting"] = true;
+        }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            base.OnException(filterContext);
+        }
+
+        protected override void OnResultExecuting(ResultExecutingContext filterContext)
+        {
+            // Simply marking that this method fired
+            filterContext.HttpContext.Items["OnResultExecuting"] = true;
+        }
+
+        protected override void OnResultExecuted(ResultExecutedContext filterContext)
+        {
+            // Simply marking that this method fired
+            filterContext.HttpContext.Items["OnResultExecuted"] = true;
+        }
+
         //
         // GET: /Store/
 

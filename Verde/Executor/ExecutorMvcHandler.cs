@@ -32,11 +32,6 @@ namespace Verde.Executor
             }
         }
 
-        protected override IAsyncResult BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, object state)
-        {
-            return base.BeginProcessRequest(httpContext, callback, state);
-        }
-
         protected override void AddVersionHeader(HttpContextBase httpContext)
         {
         }

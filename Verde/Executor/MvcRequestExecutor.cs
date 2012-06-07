@@ -13,28 +13,18 @@ namespace Verde.Executor
     /// <summary>
     /// Execute an MVC request against the site.
     /// </summary>
-    public class MvcRequestExecutor : IDisposable
+    public class MvcRequestExecutorContext : RequestExecutorContext
     {
-        private readonly HttpContextBase _httpContext;
+        public MvcRequestExecutorContext(string path, string query) : base(new RequestExecutorSettings(path, query)) { }
 
-        public MvcRequestExecutor(Uri requestUrl) : this(new RequestExecutorSettings(requestUrl.ToString())) { }
+        public MvcRequestExecutorContext(string path) : base(new RequestExecutorSettings(path)) { }
 
-        public MvcRequestExecutor(string path, string query) : this(new RequestExecutorSettings(path, query)) { }
+        public MvcRequestExecutorContext(RequestExecutorSettings settings) : base(settings) { }
+        
 
-        public MvcRequestExecutor(string path) : this(new RequestExecutorSettings(path)) { }
-
-        public MvcRequestExecutor(RequestExecutorSettings settings)
+        protected override void Execute()
         {
-            // ASP.Net appears to lazy load the ServerVariables. Ensure they are already loaded before executing 
-            // the simulated request, otherwise an exception is thrown.
-            var serverVariables = System.Web.HttpContext.Current.Request.ServerVariables;
-
-            _httpContext = new ExecutorHttpContext(System.Web.HttpContext.Current, settings);
-        }
-
-        public void Execute()
-        {
-            var routeData = RouteTable.Routes.GetRouteData(_httpContext);
+            var routeData = RouteTable.Routes.GetRouteData(base.HttpContext);
 
             this.Action = (string)routeData.Values["action"];
             string controllerName = (string)routeData.Values["controller"];
@@ -47,7 +37,7 @@ namespace Verde.Executor
 
             try
             {
-                RequestContext requestContext = new RequestContext(_httpContext, routeData);
+                RequestContext requestContext = new RequestContext(base.HttpContext, routeData);
                 var handler = new ExecutorMvcHandler(requestContext, controllerName);
 
                 using (var writer = new StringWriter())
@@ -67,15 +57,6 @@ namespace Verde.Executor
                 // Set the ControllerFactory back to the original value.
                 ControllerBuilder.Current.SetControllerFactory(controllerFactory);
             }
-        }
-
-        /// <summary>
-        /// The response text of the simulated request.
-        /// </summary>
-        public string ResponseText
-        {
-            get;
-            private set;
         }
 
         public string Action
@@ -100,21 +81,6 @@ namespace Verde.Executor
         {
             get;
             private set;
-        }
-
-        /// <summary>
-        /// The HttpContext for the simulated request.
-        /// </summary>
-        public HttpContextBase HttpContext
-        {
-            get { return _httpContext; }
-        }
-
-        public void Dispose()
-        {
-            // Now that we are done with the request, set it back to the original state.
-            _httpContext.Response.Clear();
-            _httpContext.Response.StatusCode = 200;
         }
     }
 }

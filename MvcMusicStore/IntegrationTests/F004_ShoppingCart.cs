@@ -30,10 +30,8 @@ namespace MvcMusicStore.IntegrationTests
                 User = new GenericPrincipal(new GenericIdentity("GenghisKahn"), null) 
             };
 
-            using (var executor = new MvcRequestExecutor(settings))
+            using (var executor = new MvcRequestExecutorContext(settings))
             {
-                executor.Execute();
-
                 Assert.AreEqual(302, executor.HttpContext.Response.StatusCode);
                 Assert.AreEqual("/ShoppingCart", executor.HttpContext.Response.RedirectLocation);
 
@@ -60,12 +58,10 @@ namespace MvcMusicStore.IntegrationTests
                 User = TestUtil.CreateUser(userName) 
             };
 
-            using (var executor = new MvcRequestExecutor(settings))
+            using (var executor = new MvcRequestExecutorContext(settings))
             {
                 try
                 {
-                    executor.Execute();
-
                     var viewModel = executor.ViewData.Model as ShoppingCartViewModel;
                     Assert.IsNotNull(viewModel);
                     Assert.AreEqual(albumsToCart.Count(), viewModel.CartItems.Count);
@@ -96,10 +92,8 @@ namespace MvcMusicStore.IntegrationTests
                 HttpMethod = "POST"
             };
 
-            using (var executor = new MvcRequestExecutor(settings))
+            using (var executor = new MvcRequestExecutorContext(settings))
             {
-                executor.Execute();
-
                 Assert.AreEqual("application/json", executor.HttpContext.Response.ContentType, "Expected json to be returned.");
 
                 var deserializedResponse = JsonConvert.DeserializeObject<ShoppingCartRemoveViewModel>(executor.ResponseText);

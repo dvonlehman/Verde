@@ -34,7 +34,10 @@ namespace Verde
 
         public ResultsDto ExecuteAll()
         {
-            return null;
+            var runner = CreateTestRunner();
+            var listener = new NUnitEventistener();
+            runner.BeginRun(listener, TestFilter.Empty, false, LoggingThreshold.Off);
+            return listener.Results;
         }
 
         public IList<TestFixtureDto> LoadTestFixtures()

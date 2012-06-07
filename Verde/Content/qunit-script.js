@@ -525,7 +525,7 @@ a) { var b = F.exec(a); b && (b[1] = (b[1] || "").toLowerCase(), b[3] = b[3] && 
         // by default, modify document.title when suite is done
         altertitle: true,
 
-        urlConfig: ["noglobals", "notrycatch"],
+        urlConfig:[],// ["noglobals", "notrycatch"],
 
         // logging callback queues
         begin: [],

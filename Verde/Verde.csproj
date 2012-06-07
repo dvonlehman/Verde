@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Executor\RequestExecutorContext.cs" />
     <Compile Include="IntegrationTestHandler.cs" />
     <Compile Include="ITestGuiRenderer.cs" />
     <Compile Include="ITestRunner.cs" />

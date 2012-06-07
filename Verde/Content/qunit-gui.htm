@@ -46,11 +46,11 @@
                                 ok(false, "Page timed out");
                             else {
                                 var data = $.parseJSON(xhr.responseText).tests[0];
-                                ok(false, "Test Failed (" + data.duration + " seconds)\r" + data.message);
+                                ok(false, "Test Failed (" + data.duration + " ms)\r" + data.message);
                             }
                         },
                         success: function(data, status, xhr) {
-                            ok(true, "Test Passed (" + data.tests[0].duration + " seconds)");
+                            ok(true, "Test Passed (" + data.tests[0].duration + " ms)");
                         }
                     });
                 }

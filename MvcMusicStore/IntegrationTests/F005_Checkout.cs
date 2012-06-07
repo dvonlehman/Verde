@@ -43,10 +43,8 @@ namespace MvcMusicStore.IntegrationTests
                 User=TestUtil.CreateUser(userName)
             };
 
-            using (var executor = new MvcRequestExecutor(settings))
+            using (var executor = new MvcRequestExecutorContext(settings))
             {
-                executor.Execute();
-
                 Assert.AreEqual(302, executor.HttpContext.Response.StatusCode);
 
                 var match = new Regex("/Checkout/Complete/(\\d+)").Match(executor.HttpContext.Response.RedirectLocation);

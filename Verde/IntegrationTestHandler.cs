@@ -23,7 +23,9 @@ namespace Verde
     internal class IntegrationTestHandler : IHttpHandler, IRouteHandler
     {
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings { 
-            ContractResolver = new CamelCasePropertyNamesContractResolver()};
+            Formatting= Newtonsoft.Json.Formatting.Indented, 
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
 
         bool IHttpHandler.IsReusable
         {
@@ -53,19 +55,10 @@ namespace Verde
                     RenderTestsJson(context.Response.Output);
                     break;
                 case "execute":
-                    string testName = context.Request.QueryString["test"];
-                    var results = Setup.CurrentSettings.TestRunner.Execute(testName);
-
-                    if (results.Tests.Count == 0)
-                        throw new InvalidOperationException("Test '" + testName + "' not found.");
-
-                    context.Response.ContentType = "application/json";
-                    if (results.Failed)
-                        context.Response.StatusCode = 500;
-                   
-                    context.Response.Write(JsonConvert.SerializeObject(results, Formatting.None, _serializerSettings));
+                    ExecuteTests(context, context.Request.QueryString["test"]);
                     break;
                 case "executeall":
+                    ExecuteTests(context, null);
                     break;
                 case "":
                 default:
@@ -75,13 +68,31 @@ namespace Verde
             }
         }
 
+        private void ExecuteTests(HttpContext context, string testName)
+        {
+            ResultsDto results;
+            if (String.IsNullOrEmpty(testName))
+                results = Setup.CurrentSettings.TestRunner.ExecuteAll();
+            else
+                results = Setup.CurrentSettings.TestRunner.Execute(testName);
+
+            if (results.Tests.Count == 0)
+                throw new InvalidOperationException("No tests found to execute.");
+
+            context.Response.ContentType = "application/json";
+            if (results.Failed)
+                context.Response.StatusCode = 500;
+
+            context.Response.Write(JsonConvert.SerializeObject(results, _serializerSettings));
+        }
+
         private void RenderTestsJson(TextWriter textWriter)
         {
             var json = new JsonTextWriter(textWriter);
             json.WriteStartObject();
 
             json.WritePropertyName("settings");
-            json.WriteRawValue(JsonConvert.SerializeObject(Setup.CurrentSettings, Formatting.None,_serializerSettings));
+            json.WriteRawValue(JsonConvert.SerializeObject(Setup.CurrentSettings, _serializerSettings));
            
             json.WritePropertyName("tests");
             json.WriteStartObject();

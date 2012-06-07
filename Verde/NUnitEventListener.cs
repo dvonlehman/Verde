@@ -22,7 +22,7 @@ namespace Verde
         void EventListener.RunFinished(NUnit.Core.TestResult result)
         {
             _result.EndTime = DateTime.Now;
-            _result.Duration = new TimeSpan(_result.EndTime.Ticks - _result.StartTime.Ticks).TotalSeconds;
+            _result.Duration = Convert.ToInt32(new TimeSpan(_result.EndTime.Ticks - _result.StartTime.Ticks).TotalMilliseconds);
         }
 
         void EventListener.RunStarted(string name, int testCount)
@@ -68,7 +68,7 @@ namespace Verde
 
             var testResult = _result.Tests[_result.Tests.Count - 1];
             testResult.EndTime = DateTime.Now;
-            testResult.Duration = new TimeSpan(testResult.EndTime.Ticks - testResult.StartTime.Ticks).TotalSeconds;
+            testResult.Duration = Convert.ToInt32(new TimeSpan(testResult.EndTime.Ticks - testResult.StartTime.Ticks).TotalMilliseconds);
             testResult.Failed = failed;
             testResult.Message = message;
         }

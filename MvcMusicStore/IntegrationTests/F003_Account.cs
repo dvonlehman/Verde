@@ -27,10 +27,8 @@ namespace MvcMusicStore.IntegrationTests
                 {"ConfirmPassword", invalidPassword}
             };
                         
-            using (var executor = new MvcRequestExecutor(new RequestExecutorSettings("Account/Register") { Form = formData }))
+            using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings("Account/Register") { Form = formData }))
             {
-                executor.Execute();
-
                 var responseText = executor.ResponseText;
 
                 Assert.IsFalse(executor.ViewData.ModelState.IsValid);
@@ -65,10 +63,8 @@ namespace MvcMusicStore.IntegrationTests
 
             try
             {
-                using (var executor = new MvcRequestExecutor(new RequestExecutorSettings("Account/Register") { Form = formData }))                
+                using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings("Account/Register") { Form = formData }))                
                 { 
-                    executor.Execute();
-
                     Assert.IsTrue(executor.ViewData.ModelState.IsValid);
                     Assert.AreEqual(302, executor.HttpContext.Response.StatusCode);
                     Assert.AreEqual("/", executor.HttpContext.Response.RedirectLocation);

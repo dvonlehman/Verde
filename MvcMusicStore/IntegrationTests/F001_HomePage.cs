@@ -20,10 +20,8 @@ namespace MvcMusicStore.IntegrationTests
         [Test]
         public void Index_Load_ExpectedHtml()
         {
-            using (var executor = new MvcRequestExecutor(new RequestExecutorSettings(string.Empty)))
+            using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings(string.Empty)))
             {
-                executor.Execute();
-
                 var controller = executor.Controller as HomeController;
                 Assert.IsNotNull(controller);
                 Assert.AreEqual(executor.Action, "Index");

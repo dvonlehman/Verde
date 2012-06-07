@@ -21,9 +21,8 @@ namespace MvcMusicStore.IntegrationTests
                 .Take(1)
                 .First();
 
-            using (var executor = new MvcRequestExecutor("Store/Details/" + album.AlbumId))
+            using (var executor = new MvcRequestExecutorContext("Store/Details/" + album.AlbumId))
             {
-                executor.Execute();
                 Assert.IsFalse(String.IsNullOrEmpty(executor.ResponseText));
             }
         }
