@@ -1,6 +1,12 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 bin
 obj
+*.suo
+*.user
+
+#ncrunch
+*ncrunch*
+*crunch*.local.xml
 
 # mstest test results
 TestResults

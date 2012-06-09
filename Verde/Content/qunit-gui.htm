@@ -23,21 +23,23 @@
                 });
 
                 function runTests(data) {
-                    for (var moduleName in data.tests) {
-                        module(moduleName);
+                    $.each(data.fixtures, function () {
+                        var fixture = this;
+                        module(fixture.name);
 
-                        $.each(data.tests[moduleName], function(i, testName) {
+                        $.each(fixture.tests, function () {
+                            var testName = this;
                             test(testName, function () {
-                                executeTest(data.settings, testName)
+                                executeTest(data.settings, fixture.name, testName)
                             });
                         });
-                    }
+                    });
                 }
 
-                function executeTest(settings, testName) {
+                function executeTest(settings, fixtureName, testName) {
                     $.ajax({
                         url: settings.routePath + "/execute",
-                        data: {test: testName},
+                        data: {fixture: fixtureName, test: testName},
                         timeout: settings.testTimeout,
                         dataType: "json",
                         async:false,

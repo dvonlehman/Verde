@@ -1,71 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using NUnit.Core;
-using NUnit.Core.Filters;
+using NUnit.Framework;
 
 namespace Verde
 {
     internal class NUnitTestRunner : ITestRunner
     {
         private Settings _settings;
-        private TestSuite _testSuite;
-        private TestPackage _testPackage;
+        private List<NUnitTestFixture> _fixtures;
 
         public NUnitTestRunner(Settings settings)
         {
-            // Important that this line is executed, otherwise NUnit won't find any TestFixtures or TestCases
-            CoreExtensions.Host.InstallBuiltins();
+            _settings = settings;
 
-            _testPackage = new TestPackage(settings.TestsAssembly.Location);
-            _testPackage.Settings["AutoNamespaceSuites"] = false;
-            _testSuite = new TestSuiteBuilder().Build(_testPackage);
+            _fixtures = new List<NUnitTestFixture>();
+            foreach (var type in settings.TestsAssembly.GetTypes())
+            {
+                object[] attrs = type.GetCustomAttributes(typeof(IntegrationFixtureAttribute), false);
+                if (attrs.Length == 0)
+                    continue;
+
+                var fixture = new NUnitTestFixture(type, ((IntegrationFixtureAttribute)attrs[0]).Sequence);
+                _fixtures.Add(fixture);
+            }
+
+            _fixtures.Sort((f1, f2) => f1.Sequence.CompareTo(f2.Sequence));        
         }
 
-        public ResultsDto Execute(string testName)
+        public ResultsDto Execute(string fixtureName, string testName)
         {
-            var runner = CreateTestRunner();
+            var listener = new TestRunEventListener();
+            listener.RunStarted();
 
-            var listener = new NUnitEventistener();
-            runner.BeginRun(listener, new SimpleNameFilter(testName), false, LoggingThreshold.Off);
+            // If no fixture name is specified execute all the tests.
+            if (String.IsNullOrEmpty(fixtureName))
+            {
+                foreach (var fixture in _fixtures)
+                    ExecuteFixture(fixture, listener);
+            }
+            // If there is a fixture specified but no test, run all the tests in that fixture.
+            else if (String.IsNullOrEmpty(testName))
+            {
+                var fixture = FindFixture(fixtureName);
+                ExecuteFixture(fixture, listener);
+            }
+            // If both a fixture and a test is specified then execute only the specified test.
+            else
+            {
+                var fixture = FindFixture(fixtureName);
+                var fixtureInstance = InstantiateFixture(fixture);
+
+                var method = fixture.Tests.FirstOrDefault(m => string.Compare(m.Name, testName, true) == 0);
+                if (method == null)
+                    throw new InvalidOperationException("Invalid integration test " + testName);
+
+                InvokeTest(fixtureInstance, fixtureName, method, listener);
+            }
+
+            listener.RunFinished();
             return listener.Results;
         }
 
-        public ResultsDto ExecuteAll()
+        private void ExecuteFixture(NUnitTestFixture fixture, TestRunEventListener listener)
         {
-            var runner = CreateTestRunner();
-            var listener = new NUnitEventistener();
-            runner.BeginRun(listener, TestFilter.Empty, false, LoggingThreshold.Off);
-            return listener.Results;
+            var fixtureInstance = InstantiateFixture(fixture);
+            foreach (var method in fixture.Tests)
+                InvokeTest(fixtureInstance, fixture.Name, method, listener);
+        }
+
+        private void InvokeTest(object fixtureInstance, string fixtureName, MethodInfo method, TestRunEventListener listener)
+        {
+            listener.TestStarted(fixtureName, method.Name);
+            try
+            {
+                method.Invoke(fixtureInstance, null);
+            }
+            catch (TargetInvocationException e)
+            {
+                var assertException = e.InnerException as AssertionException;
+                if (assertException != null)
+                    listener.TestFinished(true, false, assertException.Message, null);
+                else
+                    listener.TestFinished(true, true, e.InnerException.Message, e.InnerException.StackTrace);
+
+                return;
+            }
+
+            listener.TestFinished(false, false, null, null);
         }
 
         public IList<TestFixtureDto> LoadTestFixtures()
         {
-            var fixtures = new List<TestFixtureDto>();
-            foreach (TestFixture fixture in _testSuite.Tests)
+            return _fixtures.Select<NUnitTestFixture, TestFixtureDto>(f =>
             {
-                fixtures.Add(new TestFixtureDto
-                {
-                    Name = fixture.FixtureType.Name,
-                    Tests = fixture.Tests.Cast<Test>().Select<Test, string>(t => t.TestName.FullName).ToList()
-                });
-            }
-            return fixtures;
-        }
+                var dto = new TestFixtureDto { Name = f.Name};
+                if (f.Tests != null)
+                    dto.Tests = f.Tests.Select<MethodInfo, string>(m => m.Name).ToList();
+                else
+                    dto.Tests = new List<String>();
 
-        private TestRunner CreateTestRunner()
+                return dto;
+            }).ToList();
+        }
+                
+        private NUnitTestFixture FindFixture(string fixtureName)
         {
-            var runner = new SimpleTestRunner();
+           var fixture = _fixtures.Single(f => String.Compare(f.Type.FullName, fixtureName, true) == 0);
+           if (fixture == null)
+              throw new ArgumentException("Invalid IntegrationFixture " + fixtureName);
 
-            if (!runner.Load(_testPackage))
-                throw new InvalidOperationException("Could not load the TestSuite");
-
-            if (runner.Test.TestCount == 0)
-                throw new InvalidOperationException("No tests found");
-
-            return runner;
+            return fixture;
         }
 
+        private object InstantiateFixture(NUnitTestFixture fixture)
+        {
+            try
+            {
+                return Activator.CreateInstance(fixture.Type);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Could not instantiate IntegrationFixture " + fixture.Type.FullName, e);
+            }
+        }        
     }    
 }

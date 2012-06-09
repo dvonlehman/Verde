@@ -114,12 +114,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="IntegrationTests\F003_Account.cs" />
-    <Compile Include="IntegrationTests\F002_DetailsPage.cs" />
-    <Compile Include="IntegrationTests\F001_HomePage.cs" />
-    <Compile Include="IntegrationTests\F004_ShoppingCart.cs" />
-    <Compile Include="IntegrationTests\F005_Checkout.cs" />
-    <Compile Include="IntegrationTests\F006_Store.cs" />
+    <Compile Include="IntegrationTests\Account.cs" />
+    <Compile Include="IntegrationTests\DetailsPage.cs" />
+    <Compile Include="IntegrationTests\HomePage.cs" />
+    <Compile Include="IntegrationTests\ShoppingCart.cs" />
+    <Compile Include="IntegrationTests\Checkout.cs" />
+    <Compile Include="IntegrationTests\Store.cs" />
     <Compile Include="IntegrationTests\TestUtil.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Album.cs" />
@@ -178,7 +178,9 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\modernizr-1.7.js" />
     <Content Include="Scripts\modernizr-1.7.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

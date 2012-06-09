@@ -12,9 +12,9 @@ namespace MvcMusicStore.IntegrationTests
         /// <summary>
         /// Add some albums to the specified user's cart.
         /// </summary>
-        public static ShoppingCart AddItemsToCart(string userName, IEnumerable<Album> albums)
+        public static MvcMusicStore.Models.ShoppingCart AddItemsToCart(string userName, IEnumerable<Album> albums)
         {
-            var cart = new ShoppingCart { ShoppingCartId = userName };
+            var cart = new MvcMusicStore.Models.ShoppingCart { ShoppingCartId = userName };
             cart.EmptyCart();
             foreach (var album in albums)
                 cart.AddToCart(album);

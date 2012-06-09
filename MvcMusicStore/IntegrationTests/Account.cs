@@ -14,7 +14,7 @@ using HtmlAgilityPack;
 namespace MvcMusicStore.IntegrationTests
 {
     [TestFixture]
-    public class F003_Account
+    public class Account
     {
         [Test]
         public void Register_InvalidPassword_Fails()

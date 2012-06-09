@@ -44,6 +44,12 @@ namespace Verde
         /// The name of the test.
         /// </summary>
         public string TestName { get; set; }
+
+        /// <summary>
+        /// The name of the fixture
+        /// </summary>
+        public string Fixture { get; set; }
+
         [JsonIgnore]
         public DateTime StartTime { get; set; }
         [JsonIgnore]

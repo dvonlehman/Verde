@@ -5,15 +5,16 @@ using System.Web;
 using MvcMusicStore.Models;
 using NUnit.Framework;
 using Verde.Executor;
+using Verde;
 
 namespace MvcMusicStore.IntegrationTests
 {
-    [TestFixture]
-    public class F002_DetailsPage
+    [IntegrationFixture(Sequence=5)]
+    public class DetailsPage
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
-        [Test]
+        [IntegrationTest]
         public void Index_Load_ExpectedHtml()
         {
             // Get a product to load the details page for.

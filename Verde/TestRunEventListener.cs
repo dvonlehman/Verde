@@ -2,62 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Core;
 
 namespace Verde
 {
-    internal class NUnitEventistener : EventListener
+    internal class TestRunEventListener
     {
         private readonly ResultsDto _result;
 
-        public NUnitEventistener()
+        public TestRunEventListener()
         {
             _result = new ResultsDto();
         }
 
-        void EventListener.RunFinished(Exception exception)
+        public void RunStarted()
         {
+            _result.StartTime = DateTime.Now;
         }
 
-        void EventListener.RunFinished(NUnit.Core.TestResult result)
+        public void RunFinished()
         {
             _result.EndTime = DateTime.Now;
             _result.Duration = Convert.ToInt32(new TimeSpan(_result.EndTime.Ticks - _result.StartTime.Ticks).TotalMilliseconds);
         }
 
-        void EventListener.RunStarted(string name, int testCount)
+        public void TestFinished()
         {
-            _result.StartTime = DateTime.Now;
+           RecordTestFinished(false, "Passed");
         }
 
-        void EventListener.SuiteFinished(NUnit.Core.TestResult result)
+        public void TestFinished(bool isFailure, bool isError, string message, string stackTrace)
         {
-        }
-
-        void EventListener.SuiteStarted(TestName testName)
-        {
-        }
-
-        void EventListener.TestFinished(NUnit.Core.TestResult result)
-        {
-            if (result.IsFailure || result.IsError)
-                RecordTestFinished(true, result.Message + "\r\n" + result.StackTrace);
+            if (isFailure || isError)
+                RecordTestFinished(true, message + "\r\n" + stackTrace);
             else
                 RecordTestFinished(false, "Passed");
         }
 
-        void EventListener.TestOutput(TestOutput testOutput)
+        public void TestStarted(string fixtureName, string testName)
         {
-        }
-
-        void EventListener.TestStarted(TestName testName)
-        {
-            _result.Tests.Add(new TestResultDto { StartTime = DateTime.Now, TestName = testName.FullName });
-        }
-
-        void EventListener.UnhandledException(Exception exception)
-        {
-            RecordTestFinished(true, "Unhandled exception\r\n" + exception.ToString());
+            _result.Tests.Add(new TestResultDto { 
+                StartTime = DateTime.Now, 
+                Fixture=fixtureName, 
+                TestName = testName });
         }
 
         private void RecordTestFinished(bool failed, string message)

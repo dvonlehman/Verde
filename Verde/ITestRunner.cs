@@ -7,10 +7,8 @@ namespace Verde
 {
     public interface ITestRunner
     {
-        ResultsDto Execute(string testName);
-
-        ResultsDto ExecuteAll();
-
+        ResultsDto Execute(string fixtureName, string testName);
+        
         IList<TestFixtureDto> LoadTestFixtures();
     }
 }

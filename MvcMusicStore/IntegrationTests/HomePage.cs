@@ -5,6 +5,7 @@ using System.Web;
 using MvcMusicStore.Models;
 using MvcMusicStore.Controllers;
 using NUnit.Framework;
+using Verde;
 using Verde.Executor;
 using ScrapySharp;
 using ScrapySharp.Extensions;
@@ -12,12 +13,12 @@ using HtmlAgilityPack;
 
 namespace MvcMusicStore.IntegrationTests
 {
-    [TestFixture]
-    public class F001_HomePage
+    [IntegrationFixture(Sequence=1)]
+    public class HomePage
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
-        [Test]
+        [IntegrationTest]
         public void Index_Load_ExpectedHtml()
         {
             using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings(string.Empty)))

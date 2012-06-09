@@ -10,15 +10,16 @@ using HtmlAgilityPack;
 using MvcMusicStore.Models;
 using MvcMusicStore.ViewModels;
 using Newtonsoft.Json;
+using Verde;
 
 namespace MvcMusicStore.IntegrationTests
 {
-    [TestFixture]
-    public class F004_ShoppingCart
+    [IntegrationFixture(Sequence=10)]
+    public class ShoppingCart
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
-        [Test]
+        [IntegrationTest]
         public void AddToCart_ValidItem_Succeeds()
         {
             // Get a product to load the details page for.
@@ -36,7 +37,7 @@ namespace MvcMusicStore.IntegrationTests
                 Assert.AreEqual("/ShoppingCart", executor.HttpContext.Response.RedirectLocation);
 
                 // Now verify that the cart contains the item we just added.
-                var cart = ShoppingCart.GetCart(executor.HttpContext);
+                var cart = MvcMusicStore.Models.ShoppingCart.GetCart(executor.HttpContext);
                 var cartItems = cart.GetCartItems();
                 Assert.AreEqual(1, cartItems.Count);
                 Assert.AreEqual(album.AlbumId, cartItems[0].AlbumId);
@@ -46,7 +47,7 @@ namespace MvcMusicStore.IntegrationTests
             }
         }
 
-        [Test]
+        [IntegrationTest]
         public void ViewCart_ExpectedHtml()
         {
             var albumsToCart = storeDB.Albums.Take(2);
@@ -78,12 +79,12 @@ namespace MvcMusicStore.IntegrationTests
             }
         }
 
-        [Test]
+        [IntegrationTest]
         public void RemoveFromCart_ValidJson()
         {
             // Add an item to the cart so we have something to remove.
             string userName = "JimmyHendrix";
-            var cart = TestUtil.AddItemsToCart(userName, storeDB.Albums.Take(1));
+            MvcMusicStore.Models.ShoppingCart cart = TestUtil.AddItemsToCart(userName, storeDB.Albums.Take(1));
             var recordId = cart.GetCartItems().First().RecordId;                       
 
             var settings = new RequestExecutorSettings("ShoppingCart/RemoveFromCart/" + recordId) 

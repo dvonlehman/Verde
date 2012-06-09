@@ -5,17 +5,18 @@ using System.Linq;
 using System.Web;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
+using Verde;
 using Verde.Executor;
 using MvcMusicStore.Models;
 
 namespace MvcMusicStore.IntegrationTests
 {
-    [TestFixture]
-    public class F005_Checkout
+    [IntegrationFixture(Sequence=20)]
+    public class Checkout
     {
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
-        [Test]
+        [IntegrationTest]
         public void Checkout_Success()
         {
             string userName = "MilesDavis";

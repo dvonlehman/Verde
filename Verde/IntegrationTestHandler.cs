@@ -8,7 +8,6 @@ using System.Web.UI;
 using System.Web.Routing;
 using System.Reflection;
 using Newtonsoft.Json;
-using NUnit.Core;
 using Newtonsoft.Json.Serialization;
 
 namespace Verde
@@ -52,13 +51,15 @@ namespace Verde
                     break;
                 case "tests":
                     context.Response.ContentType = "application/json";
-                    RenderTestsJson(context.Response.Output);
+                    context.Response.Write(JsonConvert.SerializeObject(new {
+                        settings= Setup.CurrentSettings, 
+                        fixtures= Setup.CurrentSettings.TestRunner.LoadTestFixtures()
+                    }, _serializerSettings));
+
+                    //RenderTestsJson(context.Response.Output);
                     break;
                 case "execute":
-                    ExecuteTests(context, context.Request.QueryString["test"]);
-                    break;
-                case "executeall":
-                    ExecuteTests(context, null);
+                    ExecuteTests(context);
                     break;
                 case "":
                 default:
@@ -68,14 +69,12 @@ namespace Verde
             }
         }
 
-        private void ExecuteTests(HttpContext context, string testName)
+        private void ExecuteTests(HttpContext context)
         {
-            ResultsDto results;
-            if (String.IsNullOrEmpty(testName))
-                results = Setup.CurrentSettings.TestRunner.ExecuteAll();
-            else
-                results = Setup.CurrentSettings.TestRunner.Execute(testName);
-
+            var results = Setup.CurrentSettings.TestRunner.Execute(
+                context.Request.QueryString["fixture"],
+                context.Request.QueryString["test"]);
+            
             if (results.Tests.Count == 0)
                 throw new InvalidOperationException("No tests found to execute.");
 
@@ -84,31 +83,6 @@ namespace Verde
                 context.Response.StatusCode = 500;
 
             context.Response.Write(JsonConvert.SerializeObject(results, _serializerSettings));
-        }
-
-        private void RenderTestsJson(TextWriter textWriter)
-        {
-            var json = new JsonTextWriter(textWriter);
-            json.WriteStartObject();
-
-            json.WritePropertyName("settings");
-            json.WriteRawValue(JsonConvert.SerializeObject(Setup.CurrentSettings, _serializerSettings));
-           
-            json.WritePropertyName("tests");
-            json.WriteStartObject();
-
-            foreach (var fixture in Setup.CurrentSettings.TestRunner.LoadTestFixtures())
-            {
-                json.WritePropertyName(fixture.Name);
-                json.WriteStartArray();
-                foreach (var testName in fixture.Tests)
-                    json.WriteValue(testName);
-                json.WriteEndArray();
-            }
-
-            json.WriteEndObject();
-            json.WriteEndObject();
-            json.Flush();
         }
 
         private string LoadStaticContentResource(string resourceName)
@@ -138,8 +112,7 @@ namespace Verde
                 Setup.CurrentSettings.RoutePath + "/qunit-css",     // the GUI stylesheet for the qunit renderer
                 Setup.CurrentSettings.RoutePath + "/qunit-script",  // the GUI javascript for the qunit renderer
                 Setup.CurrentSettings.RoutePath + "/tests",         // the javascript containing all our tests
-                Setup.CurrentSettings.RoutePath + "/execute",       // execute a single test 
-                Setup.CurrentSettings.RoutePath + "/executeall"     // execute the entire test suite
+                Setup.CurrentSettings.RoutePath + "/execute"        // execute a single test 
             };
 
             using (routes.GetWriteLock())

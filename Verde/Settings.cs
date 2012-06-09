@@ -5,7 +5,6 @@ using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Reflection;
-using NUnit.Core;
 using Newtonsoft.Json;
 
 namespace Verde
@@ -15,6 +14,11 @@ namespace Verde
     /// </summary>
     public class Settings
     {
+        /// <summary>
+        /// The path to the .dll containing the tests.
+        /// </summary>
+        public string TestsAssemblyLocation { get; set; }
+
         /// <summary>
         /// Set the assembly that contains the integration tests.
         /// </summary>

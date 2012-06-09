@@ -4,14 +4,15 @@ using System.Linq;
 using System.Web;
 using MvcMusicStore.Models;
 using NUnit.Framework;
+using Verde;
 using Verde.Executor;
 
 namespace MvcMusicStore.IntegrationTests
 {
-    [TestFixture]
-    public class F006_Store
+    [IntegrationFixture(Sequence=50)]
+    public class Store
     {
-        [Test]
+        [IntegrationTest]
         public void ControllerEvents_DoExecute()
         {
             using (var executor = new MvcRequestExecutorContext("Store"))
