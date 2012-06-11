@@ -10,13 +10,13 @@ namespace Verde.Executor
     /// Base class for request executors. 
     /// </summary>
     /// <remarks>
-    /// Starting with MvcRequestExecutorContext but in theory a WebFormsRequestExectorContext could be implemented.
+    /// Starting with MvcExecutorScope but in theory a WebFormsRequestExectorContext could be implemented.
     /// </remarks>
-    public abstract class RequestExecutorContext : IDisposable
+    public abstract class ExecutorScope : IDisposable
     {
         private readonly HttpContextBase _httpContext;
 
-        public RequestExecutorContext(RequestExecutorSettings settings)
+        public ExecutorScope(ExecutorSettings settings)
         {
             this.Settings = settings;
 
@@ -30,7 +30,7 @@ namespace Verde.Executor
             this.Execute();
         }
 
-        protected RequestExecutorSettings Settings
+        protected ExecutorSettings Settings
         {
             get;
             private set;

@@ -14,9 +14,9 @@ namespace Verde.Executor
     /// </summary>
     public class ExecutorHttpSessionState : HttpSessionStateBase
     {
-        private readonly RequestExecutorSettings _settings;
+        private readonly ExecutorSettings _settings;
 
-        public ExecutorHttpSessionState(RequestExecutorSettings settings)
+        public ExecutorHttpSessionState(ExecutorSettings settings)
         {
             _settings = settings;
             if (String.IsNullOrEmpty(settings.SessionId))

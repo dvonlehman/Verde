@@ -11,22 +11,22 @@ using System.Security.Principal;
 namespace Verde.Executor
 {
     /// <summary>
-    /// The settings for a simulated HTTP MVC request.
+    /// The settings for a <see cref="ExecutorScope"/>.
     /// </summary>
     /// <remarks>
     /// All properties are optional.
     /// </remarks>
-    public class RequestExecutorSettings
+    public class ExecutorSettings
     {
-        public RequestExecutorSettings(Uri requestUrl)
+        public ExecutorSettings(Uri requestUrl)
         {
             this.Url = requestUrl;
         }
 
-        public RequestExecutorSettings(string path) : this(path, string.Empty)
+        public ExecutorSettings(string path) : this(path, string.Empty)
         { }
 
-        public RequestExecutorSettings(string path, string query)
+        public ExecutorSettings(string path, string query)
         {
             var uri = new UriBuilder(HttpContext.Current.Request.Url);
             uri.Path = path;

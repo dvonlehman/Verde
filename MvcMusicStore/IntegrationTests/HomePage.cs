@@ -21,17 +21,17 @@ namespace MvcMusicStore.IntegrationTests
         [IntegrationTest]
         public void Index_Load_ExpectedHtml()
         {
-            using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings(string.Empty)))
+            using (var scope = new MvcExecutorScope(""))
             {
-                var controller = executor.Controller as HomeController;
+                var controller = scope.Controller as HomeController;
                 Assert.IsNotNull(controller);
-                Assert.AreEqual(executor.Action, "Index");
+                Assert.AreEqual(scope.Action, "Index");
 
                 var model = controller.ViewData.Model as List<MvcMusicStore.Models.Album>;
                 Assert.IsNotNull(model, "Expected the Model to be a list of Albums.");
 
                 var html = new HtmlDocument();
-                html.LoadHtml(executor.ResponseText);
+                html.LoadHtml(scope.ResponseText);
 
                 AssertCategoryMenuValid(html);
                 AssertAlbumListValid(html);

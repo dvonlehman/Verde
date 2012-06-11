@@ -14,11 +14,11 @@ namespace Verde.Executor
     /// </summary>
     public class ExecutorHttpRequest : HttpRequestWrapper
     {
-        private readonly RequestExecutorSettings _settings;
+        private readonly ExecutorSettings _settings;
         private RequestContext _requestContext;
         private NameValueCollection _queryString;
         
-        public ExecutorHttpRequest(HttpRequest originalRequest, RequestExecutorSettings settings) : base(originalRequest)
+        public ExecutorHttpRequest(HttpRequest originalRequest, ExecutorSettings settings) : base(originalRequest)
         {
             _settings = settings;
             if (_settings.Url == null)

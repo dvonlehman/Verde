@@ -27,14 +27,14 @@ namespace MvcMusicStore.IntegrationTests
                 {"ConfirmPassword", invalidPassword}
             };
                         
-            using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings("Account/Register") { Form = formData }))
+            using (var scope = new MvcExecutorScope(new ExecutorSettings("Account/Register") { Form = formData }))
             {
-                var responseText = executor.ResponseText;
+                var responseText = scope.ResponseText;
 
-                Assert.IsFalse(executor.ViewData.ModelState.IsValid);
+                Assert.IsFalse(scope.ViewData.ModelState.IsValid);
 
                 var errors = new List<string>();
-                foreach (var modelState in executor.ViewData.ModelState.Values)
+                foreach (var modelState in scope.ViewData.ModelState.Values)
                     errors.AddRange(modelState.Errors.Select<ModelError, string>(e => e.ErrorMessage));
 
                 Assert.AreEqual(1, errors.Count);
@@ -43,7 +43,7 @@ namespace MvcMusicStore.IntegrationTests
                 Assert.AreEqual(passwordError, errors[0]);
 
                 var html = new HtmlDocument();
-                html.LoadHtml(executor.ResponseText);
+                html.LoadHtml(scope.ResponseText);
 
                 var passwordErrorSpan = html.DocumentNode.CssSelect("span.field-validation-error");
                 Assert.AreEqual(1, passwordErrorSpan.Count());
@@ -63,15 +63,16 @@ namespace MvcMusicStore.IntegrationTests
 
             try
             {
-                using (var executor = new MvcRequestExecutorContext(new RequestExecutorSettings("Account/Register") { Form = formData }))                
+                using (var scope = new MvcExecutorScope(new ExecutorSettings("Account/Register") { Form = formData }))                
                 { 
-                    Assert.IsTrue(executor.ViewData.ModelState.IsValid);
-                    Assert.AreEqual(302, executor.HttpContext.Response.StatusCode);
-                    Assert.AreEqual("/", executor.HttpContext.Response.RedirectLocation);
+                    Assert.IsTrue(scope.ViewData.ModelState.IsValid);
+                    Assert.AreEqual(302, scope.HttpContext.Response.StatusCode);
+                    Assert.AreEqual("/", scope.HttpContext.Response.RedirectLocation);
                 }
             }
             finally
             {
+                // Cleanup
                 Membership.DeleteUser(formData["UserName"]);
             }
          }

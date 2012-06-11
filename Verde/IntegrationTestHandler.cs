@@ -33,6 +33,12 @@ namespace Verde
 
         void IHttpHandler.ProcessRequest(HttpContext context)
         {
+            if (Setup.CurrentSettings.AuthorizationCheck != null)
+            {
+                if (!Setup.CurrentSettings.AuthorizationCheck(context))
+                    throw new HttpException(403, "Access denied");
+            }
+
             string path = context.Request.AppRelativeCurrentExecutionFilePath;
 
             switch (Path.GetFileNameWithoutExtension(path).ToLowerInvariant())

@@ -13,13 +13,13 @@ namespace Verde.Executor
     /// <summary>
     /// Execute an MVC request against the site.
     /// </summary>
-    public class MvcRequestExecutorContext : RequestExecutorContext
+    public class MvcExecutorScope : ExecutorScope
     {
-        public MvcRequestExecutorContext(string path, string query) : base(new RequestExecutorSettings(path, query)) { }
+        public MvcExecutorScope(string path, string query) : base(new ExecutorSettings(path, query)) { }
 
-        public MvcRequestExecutorContext(string path) : base(new RequestExecutorSettings(path)) { }
+        public MvcExecutorScope(string path) : base(new ExecutorSettings(path)) { }
 
-        public MvcRequestExecutorContext(RequestExecutorSettings settings) : base(settings) { }
+        public MvcExecutorScope(ExecutorSettings settings) : base(settings) { }
         
 
         protected override void Execute()

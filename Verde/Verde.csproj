@@ -58,12 +58,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Executor\RequestExecutorContext.cs" />
+    <Compile Include="Executor\ExecutorScope.cs" />
     <Compile Include="Attribute.cs" />
     <Compile Include="IntegrationTestHandler.cs" />
     <Compile Include="ITestGuiRenderer.cs" />
     <Compile Include="ITestRunner.cs" />
-    <Compile Include="Executor\MvcRequestExecutor.cs" />
+    <Compile Include="Executor\MvcExecutorScope.cs" />
     <Compile Include="Executor\HttpHandlerUtil.cs" />
     <Compile Include="TestRunEventListener.cs" />
     <Compile Include="NUnitTestFixture.cs" />
@@ -71,7 +71,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QUnitTestGuiRenderer.cs" />
     <Compile Include="DtoTypes.cs" />
-    <Compile Include="Executor\RequestExecutorSettings.cs" />
+    <Compile Include="Executor\ExecutorSettings.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="Executor\ExecutorHttpContext.cs" />

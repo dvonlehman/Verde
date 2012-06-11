@@ -27,17 +27,17 @@ namespace MvcMusicStore.IntegrationTests
                 .Take(1)
                 .First();
             
-            var settings = new RequestExecutorSettings("ShoppingCart/AddToCart/" + album.AlbumId) { 
+            var settings = new ExecutorSettings("ShoppingCart/AddToCart/" + album.AlbumId) { 
                 User = new GenericPrincipal(new GenericIdentity("GenghisKahn"), null) 
             };
 
-            using (var executor = new MvcRequestExecutorContext(settings))
+            using (var scope = new MvcExecutorScope(settings))
             {
-                Assert.AreEqual(302, executor.HttpContext.Response.StatusCode);
-                Assert.AreEqual("/ShoppingCart", executor.HttpContext.Response.RedirectLocation);
+                Assert.AreEqual(302, scope.HttpContext.Response.StatusCode);
+                Assert.AreEqual("/ShoppingCart", scope.HttpContext.Response.RedirectLocation);
 
                 // Now verify that the cart contains the item we just added.
-                var cart = MvcMusicStore.Models.ShoppingCart.GetCart(executor.HttpContext);
+                var cart = MvcMusicStore.Models.ShoppingCart.GetCart(scope.HttpContext);
                 var cartItems = cart.GetCartItems();
                 Assert.AreEqual(1, cartItems.Count);
                 Assert.AreEqual(album.AlbumId, cartItems[0].AlbumId);
@@ -55,28 +55,23 @@ namespace MvcMusicStore.IntegrationTests
 
             var cart = TestUtil.AddItemsToCart(userName, albumsToCart);
             
-            var settings = new RequestExecutorSettings("ShoppingCart/Index") { 
+            var settings = new ExecutorSettings("ShoppingCart/Index") { 
                 User = TestUtil.CreateUser(userName) 
             };
 
-            using (var executor = new MvcRequestExecutorContext(settings))
+            using (var scope = new MvcExecutorScope(settings))
             {
-                try
-                {
-                    var viewModel = executor.ViewData.Model as ShoppingCartViewModel;
-                    Assert.IsNotNull(viewModel);
-                    Assert.AreEqual(albumsToCart.Count(), viewModel.CartItems.Count);
-                    foreach (var album in albumsToCart)
-                        Assert.IsTrue(viewModel.CartItems.Any(c => c.AlbumId == album.AlbumId));
+                var viewModel = scope.ViewData.Model as ShoppingCartViewModel;
+                Assert.IsNotNull(viewModel);
+                Assert.AreEqual(albumsToCart.Count(), viewModel.CartItems.Count);
+                foreach (var album in albumsToCart)
+                    Assert.IsTrue(viewModel.CartItems.Any(c => c.AlbumId == album.AlbumId));
 
-                    Assert.IsFalse(String.IsNullOrEmpty(executor.ResponseText));
-                }
-                finally 
-                {
-                    // Finally clear the cart.
-                    cart.EmptyCart();
-                }
+                Assert.IsFalse(String.IsNullOrEmpty(scope.ResponseText));
             }
+
+            // Cleanup
+            cart.EmptyCart();
         }
 
         [IntegrationTest]
@@ -87,17 +82,17 @@ namespace MvcMusicStore.IntegrationTests
             MvcMusicStore.Models.ShoppingCart cart = TestUtil.AddItemsToCart(userName, storeDB.Albums.Take(1));
             var recordId = cart.GetCartItems().First().RecordId;                       
 
-            var settings = new RequestExecutorSettings("ShoppingCart/RemoveFromCart/" + recordId) 
+            var settings = new ExecutorSettings("ShoppingCart/RemoveFromCart/" + recordId) 
             { 
                 User = TestUtil.CreateUser(userName), 
                 HttpMethod = "POST"
             };
 
-            using (var executor = new MvcRequestExecutorContext(settings))
+            using (var scope = new MvcExecutorScope(settings))
             {
-                Assert.AreEqual("application/json", executor.HttpContext.Response.ContentType, "Expected json to be returned.");
+                Assert.AreEqual("application/json", scope.HttpContext.Response.ContentType, "Expected json to be returned.");
 
-                var deserializedResponse = JsonConvert.DeserializeObject<ShoppingCartRemoveViewModel>(executor.ResponseText);
+                var deserializedResponse = JsonConvert.DeserializeObject<ShoppingCartRemoveViewModel>(scope.ResponseText);
                 Assert.AreEqual(0.0d, deserializedResponse.CartTotal, "The shopping cart total should be $0.00.");
                 Assert.AreEqual(0, deserializedResponse.ItemCount, "The shopping cart should have 0 items left.");
                 Assert.AreEqual(recordId, deserializedResponse.DeleteId);

@@ -17,12 +17,12 @@ namespace Verde.Executor
         private static readonly IPrincipal DefaultIdentity =
             new GenericPrincipal(new GenericIdentity("Anonymous"), new string[] { });
 
-        private readonly RequestExecutorSettings _settings;
+        private readonly ExecutorSettings _settings;
         private readonly IHttpHandler _currentHandler;
         private readonly HttpRequestBase _request;
         private readonly HttpSessionStateBase _session;
         
-        public ExecutorHttpContext(HttpContext httpContext, RequestExecutorSettings settings): base(httpContext)
+        public ExecutorHttpContext(HttpContext httpContext, ExecutorSettings settings): base(httpContext)
         {
             _settings = settings;
 

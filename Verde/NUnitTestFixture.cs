@@ -11,6 +11,7 @@ namespace Verde
     {
         private readonly Type _type;
         private readonly int _sequence;
+        private readonly IList<MethodInfo> _testMethods; 
 
         public NUnitTestFixture(Type type, int sequence)
         {
@@ -21,52 +22,36 @@ namespace Verde
             if (_sequence == 0)
                 _sequence = Int32.MaxValue;
 
+            _testMethods = new List<MethodInfo>();
             foreach (var method in type.GetMethods())
             {
-                if (HasAttribute<TestFixtureSetUpAttribute>(method))
-                {
-                    EnsureProperSignature(method);
-                    if (FixtureSetups == null) FixtureSetups = new List<MethodInfo>();
-                    FixtureSetups.Add(method);
-                }
-                else if (HasAttribute<TestFixtureTearDownAttribute>(method))
-                {
-                    EnsureProperSignature(method);
-                    if (FixtureTearDowns == null) FixtureTearDowns = new List<MethodInfo>();
-                    FixtureTearDowns.Add(method);
-                }
-                else if (HasAttribute<SetUpAttribute>(method))
-                {
-                    EnsureProperSignature(method);
-                    if (Setups == null) Setups = new List<MethodInfo>();
-                    Setups.Add(method);
-                }
-                else if (HasAttribute<TearDownAttribute>(method))
-                {
-                    EnsureProperSignature(method);
-                    if (Teardowns == null) Teardowns = new List<MethodInfo>();
-                    Teardowns.Add(method);
-                }
-                else if (HasAttribute<IntegrationTestAttribute>(method))
-                {
-                    EnsureProperSignature(method);
-                    if (Tests == null) Tests = new List<MethodInfo>();
-                    Tests.Add(method);
-                }
+               if (HasAttribute<IntegrationTestAttribute>(method))
+               {
+                EnsureProperSignature(method);
+                _testMethods.Add(method);
+               }
             }
         }
 
-        public Type Type { get { return _type; } }
+        public Type Type 
+        { 
+            get { return _type; } 
+        }
 
-        public string Name { get { return _type.FullName; } }
+        public string Name 
+        { 
+            get { return _type.FullName; } 
+        }
 
-        public int Sequence { get { return _sequence; } }
+        public int Sequence 
+        { 
+            get { return _sequence; } 
+        }
 
-        public IList<MethodInfo> FixtureSetups { get; private set; }
-        public IList<MethodInfo> FixtureTearDowns { get; private set; }
-        public IList<MethodInfo> Setups { get; private set; }
-        public IList<MethodInfo> Teardowns { get; private set; }
-        public IList<MethodInfo> Tests { get; private set; }
+        public IList<MethodInfo> Tests
+        {
+            get { return _testMethods; }
+        }
                 
         private static bool HasAttribute<T>(MethodInfo method) where T : Attribute
         {

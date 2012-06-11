@@ -15,15 +15,15 @@ namespace MvcMusicStore.IntegrationTests
         [IntegrationTest]
         public void ControllerEvents_DoExecute()
         {
-            using (var executor = new MvcRequestExecutorContext("Store"))
+            using (var scope = new MvcExecutorScope("Store"))
             {
-                var model = executor.ViewData.Model as IList<Genre>;
+                var model = scope.ViewData.Model as IList<Genre>;
                 Assert.IsNotNull(model);
 
-                Assert.IsTrue((bool)executor.HttpContext.Items["OnActionExecuting"]);
-                Assert.IsTrue((bool)executor.HttpContext.Items["OnActionExecuted"]);
-                Assert.IsTrue((bool)executor.HttpContext.Items["OnResultExecuting"]);
-                Assert.IsTrue((bool)executor.HttpContext.Items["OnResultExecuted"]);
+                Assert.IsTrue((bool)scope.HttpContext.Items["OnActionExecuting"]);
+                Assert.IsTrue((bool)scope.HttpContext.Items["OnActionExecuted"]);
+                Assert.IsTrue((bool)scope.HttpContext.Items["OnResultExecuting"]);
+                Assert.IsTrue((bool)scope.HttpContext.Items["OnResultExecuted"]);
             }
         }
     }
