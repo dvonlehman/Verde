@@ -6,12 +6,14 @@ packages/
 *.suo
 *.user
 *cache
+*.nupkg
 _ReSharper*
 
 *NSubstitute*
 
 *.ncrunchproject
 *.ncrunchsolution
+*.ncrunchsolution.user
 
 UpgradeLog.XML
 _UpgradeReport_Files

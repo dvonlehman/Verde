@@ -1,14 +1,22 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
+    <id>Verde</id>
+    <title>Verde</title>
+    <version>0.4.0</version>
     <authors>David Von Lehman</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>Integration test and application health verification framework for ASP.Net MVC</description>
     <releaseNotes>Initial release</releaseNotes>
+    <projectUrl>http://dvonlehman.github.com/Verde/</projectUrl>
     <copyright>Copyright 2012</copyright>
     <tags>IntegrationTest Mvc</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="4.5.5" />
+      <dependency id="NUnit" version="2.6.0.12054" />
+    </dependencies>
   </metadata>
+  <files>
+    <file src="Verde\bin\Release\Verde.dll" target="lib" />
+  </files>
 </package>

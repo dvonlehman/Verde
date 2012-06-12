@@ -95,7 +95,7 @@ namespace MvcMusicStore.IntegrationTests
 
                 var deserializedResponse = JsonConvert.DeserializeObject<ShoppingCartRemoveViewModel>(scope.ResponseText);
                 Assert.AreEqual(0.0d, deserializedResponse.CartTotal, "The shopping cart total should be $0.00.");
-                Assert.AreEqual(1, deserializedResponse.ItemCount, "The shopping cart should have 0 items left.");
+                Assert.AreEqual(0, deserializedResponse.ItemCount, "The shopping cart should have 0 items left.");
                 Assert.AreEqual(recordId, deserializedResponse.DeleteId);
             }
         }
