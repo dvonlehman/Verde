@@ -3,10 +3,16 @@ Verde
 
 ##Overview
 
-Verde is an integration test and application health verification framework for ASP.Net MVC. Integration tests are intended to automate verifying the different components of your application such as databases, web services, etc. are working together correctly. Unlike test runners integrated into Visual Studio or standalone applications, the Verde framework runs tests right within your web application, leveraging the same configuration settings, security permissions, network topology, etc. This allows exposing issues that may not otherwise be encountered until an end-user actually starts using the application. Verde is intended to complement a robust suite of unit tests; the unit tests ensure all the individual units of work function correctly, while integration tests ensure everything works together.
+Verde is an integration test and application health verification framework for ASP.Net MVC. Integration tests are intended to automate verifying the different components of your application such as databases, web services, etc. are working together correctly. Unlike test runners integrated into Visual Studio or standalone applications, the Verde framework runs tests directly within your web application; leveraging the same configuration settings, security permissions, network topology, etc. This allows exposing issues that may not otherwise be encountered until an end-user actually starts using the application. Verde is intended to complement a robust suite of unit tests; the unit tests ensure all the individual units of work function correctly, while integration tests ensure everything works together.
 
 ##Getting Started
-Verde provides both a browser based GUI and a programmatic RESTful endpoint which could easily be incorporated into an auto-deployment or monitoring script. The framework is designed to be easily dropped into an existing MVC application with minimal configuration overhead. Basically all you need to do is add a reference to the Verde library and add a small bit to the **Application_Start** event in your global.asax.
+Verde provides a browser based GUI based on the the [QUnit](http://docs.jquery.com/QUnit) JavaScript test framework. 
+
+![Screenshot](docs/gui_screenshot.png)
+
+The GUI in turn makes AJAX calls to a RESTful endpoint on your server to execute tests and get back the results as a JSON data structure. These same RESTful endpoints can also be invoked directly by an automated deployment script or application monitoring service.
+
+The framework is designed to be easily dropped into an existing MVC application with minimal configuration overhead, i.e., no changes to your web.config and routing rules are automatically injected by the framework (modeled after the MvcMiniProfiler). Basically all you need to do is add a reference to the Verde library and add a small bit to the **Application_Start** event in your global.asax.
 
 ```csharp
 // Minimal setup
@@ -28,10 +34,9 @@ Verde.Setup.Initialize(new Verde.Settings
     }
 });
 ```
+The Initialize method automatically registers several MVC routes in your application's route table, /@integrationtests, /@integrationtests/tests, and /@integrationtests/execute.  
 
-The Verde GUI is based on the [QUnit](http://docs.jquery.com/QUnit) JavaScript test framework. Custom ITestGuiRenderer instances are also supported.
 
-![Screenshot](docs/gui_screenshot.png)
 
 Now all that's left is to write some tests.
 
