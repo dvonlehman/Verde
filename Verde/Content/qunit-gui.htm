@@ -19,7 +19,9 @@
                 $.ajax({
                     url: "@@PATH@@/tests",
                     type: "json",
-                    success: function (data) { runTests(data) }
+                    success: function (data) {
+                       runTests(data)
+                    }
                 });
 
                 function runTests(data) {

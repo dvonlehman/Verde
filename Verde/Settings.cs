@@ -70,6 +70,7 @@ namespace Verde
         /// environment but you need to protect just anyone from accessing the URL. The function could
         /// check for a special authorization cookie, check the roles of the current principal, etc.
         /// </remarks>
+        [JsonIgnore]
         public Func<HttpContext, bool> AuthorizationCheck { get; set; }
 
         internal void Validate()

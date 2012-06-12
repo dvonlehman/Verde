@@ -114,13 +114,27 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="IntegrationTests\Account.cs" />
-    <Compile Include="IntegrationTests\DetailsPage.cs" />
-    <Compile Include="IntegrationTests\HomePage.cs" />
-    <Compile Include="IntegrationTests\ShoppingCart.cs" />
-    <Compile Include="IntegrationTests\Checkout.cs" />
-    <Compile Include="IntegrationTests\Store.cs" />
-    <Compile Include="IntegrationTests\TestUtil.cs" />
+    <Compile Include="IntegrationTests\Account.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntegrationTests\Checkout.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntegrationTests\DetailsPage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntegrationTests\HomePage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntegrationTests\ShoppingCart.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntegrationTests\Store.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntegrationTests\TestUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Album.cs" />
     <Compile Include="Models\Artist.cs" />
