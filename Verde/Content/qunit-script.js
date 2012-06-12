@@ -597,7 +597,7 @@ a) { var b = F.exec(a); b && (b[1] = (b[1] || "").toLowerCase(), b[3] = b[3] && 
 				"<h1 id='qunit-header'>" + escapeInnerText(document.title) + "</h1>" +
 				"<h2 id='qunit-banner'></h2>" +
 				"<div id='qunit-testrunner-toolbar'></div>" +
-				"<h2 id='qunit-userAgent'></h2>" +
+				//"<h2 id='qunit-userAgent'></h2>" +
 				"<ol id='qunit-tests'></ol>";
             }
 

@@ -79,7 +79,8 @@ namespace MvcMusicStore.IntegrationTests
         {
             // Add an item to the cart so we have something to remove.
             string userName = "JimmyHendrix";
-            MvcMusicStore.Models.ShoppingCart cart = TestUtil.AddItemsToCart(userName, storeDB.Albums.Take(1));
+            MvcMusicStore.Models.ShoppingCart cart = TestUtil.AddItemsToCart(
+                userName, storeDB.Albums.Take(1));
             var recordId = cart.GetCartItems().First().RecordId;                       
 
             var settings = new ExecutorSettings("ShoppingCart/RemoveFromCart/" + recordId) 
@@ -94,7 +95,7 @@ namespace MvcMusicStore.IntegrationTests
 
                 var deserializedResponse = JsonConvert.DeserializeObject<ShoppingCartRemoveViewModel>(scope.ResponseText);
                 Assert.AreEqual(0.0d, deserializedResponse.CartTotal, "The shopping cart total should be $0.00.");
-                Assert.AreEqual(0, deserializedResponse.ItemCount, "The shopping cart should have 0 items left.");
+                Assert.AreEqual(1, deserializedResponse.ItemCount, "The shopping cart should have 0 items left.");
                 Assert.AreEqual(recordId, deserializedResponse.DeleteId);
             }
         }

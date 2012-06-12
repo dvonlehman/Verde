@@ -28,6 +28,7 @@ namespace MvcMusicStore.IntegrationTests
 
             using (var scope = new MvcExecutorScope("Store/Details/" + album.AlbumId))
             {
+                Assert.AreEqual(200, scope.HttpContext.Response.StatusCode);
                 Assert.IsTrue(scope.Controller is StoreController);
                 Assert.AreEqual("Details", scope.Action);
 

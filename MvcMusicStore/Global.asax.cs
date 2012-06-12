@@ -38,7 +38,14 @@ namespace MvcMusicStore
             // Conditionally invoke this line only if integration tests should be enabled in the current environment.
             Verde.Setup.Initialize(new Verde.Settings
             {
-                TestsAssembly = System.Reflection.Assembly.GetExecutingAssembly()
+                TestsAssembly = System.Reflection.Assembly.GetExecutingAssembly(),
+                AuthorizationCheck = (context) =>
+                {
+                    // Here we could do something that verifies that the current user is allowed to 
+                    // invoke integration tests.  Maybe something like:
+                    // return context.User.IsInRole("admin");
+                    return true;
+                }
             });
 
             System.Data.Entity.Database.SetInitializer(new MvcMusicStore.Models.SampleData());
