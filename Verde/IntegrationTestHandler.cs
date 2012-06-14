@@ -33,6 +33,8 @@ namespace Verde
 
         void IHttpHandler.ProcessRequest(HttpContext context)
         {
+            var contextBase = new HttpContextWrapper(context);
+
             if (Setup.CurrentSettings.AuthorizationCheck != null)
             {
                 if (!Setup.CurrentSettings.AuthorizationCheck(context))
@@ -41,23 +43,24 @@ namespace Verde
 
             string path = context.Request.AppRelativeCurrentExecutionFilePath;
 
-            switch (Path.GetFileNameWithoutExtension(path).ToLowerInvariant())
+            switch (Path.GetFileNameWithoutExtension(path).ToLowerInvariant().TrimStart('/').TrimEnd('/'))
             {
                 case "qunit-css":
-                    context.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
-                    context.Response.ContentType = "text/css";
-                    context.Response.Write(LoadStaticContentResource("qunit-css.css"));
+                    contextBase.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
+                    contextBase.Response.ContentType = "text/css";
+                    contextBase.Response.Write(LoadStaticContentResource("qunit-css.css"));
 
                     break;
                 case "qunit-script":
-                    context.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
-                    context.Response.ContentType = "text/javascript";
-                    context.Response.Write(LoadStaticContentResource("qunit-script.js"));
+                    contextBase.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
+                    contextBase.Response.ContentType = "text/javascript";
+                    contextBase.Response.Write(LoadStaticContentResource("qunit-script.js"));
 
                     break;
                 case "tests":
-                    context.Response.ContentType = "application/json";
-                    context.Response.Write(JsonConvert.SerializeObject(new {
+                    contextBase.Response.ContentType = "application/json";
+                    contextBase.Response.Write(JsonConvert.SerializeObject(new
+                    {
                         settings= Setup.CurrentSettings, 
                         fixtures= Setup.CurrentSettings.TestRunner.LoadTestFixtures()
                     }, _serializerSettings));
@@ -65,17 +68,17 @@ namespace Verde
                     //RenderTestsJson(context.Response.Output);
                     break;
                 case "execute":
-                    ExecuteTests(context);
+                    ExecuteTests(contextBase);
                     break;
                 case "":
                 default:
                     // Render the GUI test console.
-                    Setup.CurrentSettings.GuiRenderer.Render(context.Response.Output);
+                    Setup.CurrentSettings.GuiRenderer.Render(contextBase);
                     break;
             }
         }
 
-        private void ExecuteTests(HttpContext context)
+        private void ExecuteTests(HttpContextBase context)
         {
             var results = Setup.CurrentSettings.TestRunner.Execute(
                 context.Request.QueryString["fixture"],

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Web;
 
 namespace Verde
 {
@@ -15,6 +16,6 @@ namespace Verde
         /// Render the markup for the Gui to the writer.
         /// </summary>
         /// <param name="writer"></param>
-        void Render(TextWriter writer);
+        void Render(HttpContextBase context);
     }
 }

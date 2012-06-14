@@ -13,7 +13,7 @@ namespace Verde
     /// </summary>
     public class QUnitTestGuiRenderer : ITestGuiRenderer
     {
-        void ITestGuiRenderer.Render(TextWriter writer)
+        void ITestGuiRenderer.Render(HttpContextBase context)
         {
             string html;
             using (var stream = this.GetType().Assembly.GetManifestResourceStream("Verde.Content.qunit-gui.htm"))
@@ -22,10 +22,18 @@ namespace Verde
                 html = reader.ReadToEnd();
             }
 
+            // Get the absolute URL of the request to the GUI. Just to be safe ensure that we have a trailing 
+            // slash to ensure the final URL to qunit-css and qunit-script resolves correctly.
+            var url = new UriBuilder(context.Request.Url);
+            url.Query = string.Empty;
+            string absoluteUrl = url.Uri.ToString();
+            if (!absoluteUrl.EndsWith("/"))
+                absoluteUrl += "/";
+                
             html = html.Replace("@@TITLE@@", Setup.CurrentSettings.GuiPageTitle);
             html = html.Replace("@@HEADER@@", Setup.CurrentSettings.GuiHeaderText);
-            html = html.Replace("@@PATH@@", Setup.CurrentSettings.RoutePath);
-            writer.Write(html);
+            html = html.Replace("@@PATH@@", url.ToString());
+            context.Response.Write(html);
         }
     }
 }
