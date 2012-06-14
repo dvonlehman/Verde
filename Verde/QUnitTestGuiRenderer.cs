@@ -27,13 +27,18 @@ namespace Verde
             var url = new UriBuilder(context.Request.Url);
             url.Query = string.Empty;
             string absoluteUrl = url.Uri.ToString();
-            if (!absoluteUrl.EndsWith("/"))
-                absoluteUrl += "/";
-                
+
             html = html.Replace("@@TITLE@@", Setup.CurrentSettings.GuiPageTitle);
             html = html.Replace("@@HEADER@@", Setup.CurrentSettings.GuiHeaderText);
-            html = html.Replace("@@PATH@@", url.ToString());
+            html = html.Replace("@@PATH@@", url.ToString().TrimEnd('/'));
             context.Response.Write(html);
+        }
+
+        private string EnsureNoTrailingSlath(string path)
+        {
+            if (path.EndsWith("/"))
+                path = path.Substring(0, path.Length - 1);
+            return path;
         }
     }
 }

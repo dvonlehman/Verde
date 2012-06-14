@@ -40,7 +40,7 @@
 
                 function executeTest(settings, fixtureName, testName) {
                     $.ajax({
-                        url: settings.routePath + "/execute",
+                        url: "@@PATH@@/execute",
                         data: {fixture: fixtureName, test: testName},
                         timeout: settings.testTimeout,
                         dataType: "json",
