@@ -4,6 +4,12 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Autofac;
+using Autofac.Integration.Mvc;
+using Verde;
+using Verde.Autofac;
+using MvcMusicStore.Models;
+using MvcMusicStore.Controllers;
 
 namespace MvcMusicStore
 {
@@ -35,8 +41,7 @@ namespace MvcMusicStore
 
         protected void Application_Start()
         {
-            // Conditionally invoke this line only if integration tests should be enabled in the current environment.
-            Verde.Setup.Initialize(new Verde.Settings
+            var settings = new Verde.Settings
             {
                 TestsAssembly = System.Reflection.Assembly.GetExecutingAssembly(),
                 AuthorizationCheck = (context) =>
@@ -46,7 +51,13 @@ namespace MvcMusicStore
                     // return context.User.IsInRole("admin");
                     return true;
                 }
-            });
+            };
+
+            // Since we are using Autofac for DI, we need to make the Verde framework aware.
+            AutofacSetup.Initialize(settings);
+
+            // Conditionally invoke this line only if integration tests should be enabled in the current environment.
+            Verde.Setup.Initialize(settings);
 
             System.Data.Entity.Database.SetInitializer(new MvcMusicStore.Models.SampleData());
 
@@ -54,6 +65,21 @@ namespace MvcMusicStore
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
+
+            AutofacRegistration();
+        }
+
+        private void AutofacRegistration()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterModule(new AutofacWebTypesModule());
+
+            builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>().SingleInstance();
+            builder.RegisterControllers(System.Reflection.Assembly.GetExecutingAssembly());
+
+            var container = builder.Build();
+
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
         }
     }
 }

@@ -68,6 +68,9 @@ namespace Verde
                     //RenderTestsJson(context.Response.Output);
                     break;
                 case "execute":
+                    foreach (var handler in Setup.CurrentSettings.BeginExecuteTestsRequestHandlers)
+                        handler(this, EventArgs.Empty);
+
                     ExecuteTests(contextBase);
                     break;
                 case "":

@@ -9,8 +9,14 @@ namespace MvcMusicStore.Controllers
     [Authorize]
     public class CheckoutController : AsyncController
     {
-        MusicStoreEntities storeDB = new MusicStoreEntities();
         const string PromoCode = "FREE";
+
+        private readonly IMusicStoreEntities _entities;
+
+        public CheckoutController(IMusicStoreEntities entities)
+        {
+            _entities = entities;
+        }
 
         //
         // GET: /Checkout/AddressAndPayment
@@ -31,17 +37,19 @@ namespace MvcMusicStore.Controllers
             var order = new Order();
             bool success = true;
 
+            TryUpdateModel(order);
+
+            string promoCode = values["PromoCode"];
+            if (!String.IsNullOrEmpty(promoCode) && !string.Equals(promoCode, PromoCode, StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError("", "Promo code is not valid.");
+                success = false;
+            }
+
             worker.DoWork += (sender, e) =>
             {
-                TryUpdateModel(order);
-
-                string promoCode = values["PromoCode"];
-                if (!String.IsNullOrEmpty(promoCode) && !string.Equals(promoCode, PromoCode, StringComparison.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError("", "Promo code is not valid.");
-                    success = false;
+                if (!success)
                     return;
-                }
 
                 try
                 {
@@ -49,8 +57,8 @@ namespace MvcMusicStore.Controllers
                     order.OrderDate = DateTime.Now;
 
                     //Save Order
-                    storeDB.Orders.Add(order);
-                    storeDB.SaveChanges();
+                    _entities.Orders.Add(order);
+                    _entities.SaveChanges();
 
                     //Process the order
                     var cart = ShoppingCart.GetCart(this.HttpContext);
@@ -89,7 +97,7 @@ namespace MvcMusicStore.Controllers
         public ActionResult Complete(int id)
         {
             // Validate customer owns this order
-            bool isValid = storeDB.Orders.Any(
+            bool isValid = _entities.Orders.Any(
                 o => o.OrderId == id &&
                 o.Username == User.Identity.Name);
 

@@ -7,6 +7,13 @@ namespace MvcMusicStore.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IMusicStoreEntities _entities;
+
+        public HomeController(IMusicStoreEntities entities)
+        {
+            _entities = entities;
+        }
+
         //
         // GET: /Home/
 
@@ -25,7 +32,7 @@ namespace MvcMusicStore.Controllers
             // Group the order details by album and return
             // the albums with the highest count
 
-            return storeDB.Albums
+            return _entities.Albums
                 .OrderByDescending(a => a.OrderDetails.Count())
                 .Take(count)
                 .ToList();

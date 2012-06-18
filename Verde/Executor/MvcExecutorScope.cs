@@ -24,7 +24,7 @@ namespace Verde.Executor
 
         protected override void Execute()
         {
-            var routeData = RouteTable.Routes.GetRouteData(base.HttpContext);
+            var routeData = base.HttpContext.Request.RequestContext.RouteData;
 
             this.Action = (string)routeData.Values["action"];
             string controllerName = (string)routeData.Values["controller"];
@@ -37,8 +37,7 @@ namespace Verde.Executor
 
             try
             {
-                RequestContext requestContext = new RequestContext(base.HttpContext, routeData);
-                var handler = new ExecutorMvcHandler(requestContext, controllerName);
+                var handler = new ExecutorMvcHandler(base.HttpContext.Request.RequestContext, controllerName);
 
                 using (var writer = new StringWriter())
                 {
@@ -81,6 +80,11 @@ namespace Verde.Executor
         {
             get;
             private set;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
         }
     }
 }

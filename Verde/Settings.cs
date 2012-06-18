@@ -15,6 +15,10 @@ namespace Verde
     /// </summary>
     public class Settings
     {
+        private List<EventHandler> _scopeCreatedEventHandlers = new List<EventHandler>();
+        private List<EventHandler> _scopeDisposedEventHandlers = new List<EventHandler>();
+        private List<EventHandler> _beginExecuteTestRequestHandlers = new List<EventHandler>();
+
         /// <summary>
         /// Set the assembly that contains the integration tests.
         /// </summary>
@@ -72,6 +76,48 @@ namespace Verde
         /// </remarks>
         [JsonIgnore]
         public Func<HttpContext, bool> AuthorizationCheck { get; set; }
+
+        internal IList<EventHandler> ExecutorScopeCreatedHandlers
+        {
+             get { return _scopeCreatedEventHandlers; }
+        }
+
+        internal IList<EventHandler> ExecutorScopeDisposedHandlers
+        {
+            get { return _scopeDisposedEventHandlers; }
+        }
+
+        internal IList<EventHandler> BeginExecuteTestsRequestHandlers
+        {
+            get { return _beginExecuteTestRequestHandlers; }
+        }
+
+        /// <summary>
+        /// Event that fires when a new <see cref="Verde.Executor.ExecutorScope"/> is created.
+        /// </summary>
+        public event EventHandler ExecutorScopeCreated
+        {
+            add { _scopeCreatedEventHandlers.Add(value); }
+            remove { _scopeCreatedEventHandlers.Remove(value); }
+        }
+
+        /// <summary>
+        /// Event that fires when an <see cref="Verde.Executor.ExecutorScope"/> is disposed.
+        /// </summary>
+        public event EventHandler ExecutorScopeDisposed
+        {
+            add { _scopeDisposedEventHandlers.Add(value); }
+            remove { _scopeDisposedEventHandlers.Remove(value); }
+        }
+
+        /// <summary>
+        /// Event that fires when the Http request to execute one or more tests begins.
+        /// </summary>
+        public event EventHandler BeginExecuteTestsRequest
+        {
+            add { _beginExecuteTestRequestHandlers.Add(value); }
+            remove { _beginExecuteTestRequestHandlers.Remove(value); }
+        }
 
         internal void Validate()
         {

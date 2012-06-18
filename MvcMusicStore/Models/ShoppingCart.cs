@@ -8,6 +8,13 @@ namespace MvcMusicStore.Models
 {
     public partial class ShoppingCart
     {
+        //private readonly IMusicStoreEntities _entities;
+
+        //public ShoppingCart(IMusicStoreEntities entities)
+        //{
+        //    _entities = entities;
+        //}
+
         MusicStoreEntities storeDB = new MusicStoreEntities();
 
         public string ShoppingCartId { get; set; }

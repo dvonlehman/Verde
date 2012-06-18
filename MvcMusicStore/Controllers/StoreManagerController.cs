@@ -12,14 +12,19 @@ namespace MvcMusicStore.Controllers
     [Authorize(Roles = "Administrator")]
     public class StoreManagerController : Controller
     {
-        private MusicStoreEntities db = new MusicStoreEntities();
+        private readonly IMusicStoreEntities _entities;
+
+        public StoreManagerController(IMusicStoreEntities entities)
+        {
+            _entities = entities;
+        }
 
         //
         // GET: /StoreManager/
 
         public ViewResult Index()
         {
-            var albums = db.Albums.Include(a => a.Genre).Include(a => a.Artist);
+            var albums = _entities.Albums.Include(a => a.Genre).Include(a => a.Artist);
             return View(albums.ToList());
         }
 
@@ -28,7 +33,7 @@ namespace MvcMusicStore.Controllers
 
         public ViewResult Details(int id)
         {
-            Album album = db.Albums.Find(id);
+            Album album = _entities.Albums.Find(id);
             return View(album);
         }
 
@@ -37,8 +42,8 @@ namespace MvcMusicStore.Controllers
 
         public ActionResult Create()
         {
-            ViewBag.GenreId = new SelectList(db.Genres, "GenreId", "Name");
-            ViewBag.ArtistId = new SelectList(db.Artists, "ArtistId", "Name");
+            ViewBag.GenreId = new SelectList(_entities.Genres, "GenreId", "Name");
+            ViewBag.ArtistId = new SelectList(_entities.Artists, "ArtistId", "Name");
             return View();
         } 
 
@@ -50,13 +55,13 @@ namespace MvcMusicStore.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Albums.Add(album);
-                db.SaveChanges();
+                _entities.Albums.Add(album);
+                _entities.SaveChanges();
                 return RedirectToAction("Index");  
             }
 
-            ViewBag.GenreId = new SelectList(db.Genres, "GenreId", "Name", album.GenreId);
-            ViewBag.ArtistId = new SelectList(db.Artists, "ArtistId", "Name", album.ArtistId);
+            ViewBag.GenreId = new SelectList(_entities.Genres, "GenreId", "Name", album.GenreId);
+            ViewBag.ArtistId = new SelectList(_entities.Artists, "ArtistId", "Name", album.ArtistId);
             return View(album);
         }
         
@@ -65,9 +70,9 @@ namespace MvcMusicStore.Controllers
  
         public ActionResult Edit(int id)
         {
-            Album album = db.Albums.Find(id);
-            ViewBag.GenreId = new SelectList(db.Genres, "GenreId", "Name", album.GenreId);
-            ViewBag.ArtistId = new SelectList(db.Artists, "ArtistId", "Name", album.ArtistId);
+            Album album = _entities.Albums.Find(id);
+            ViewBag.GenreId = new SelectList(_entities.Genres, "GenreId", "Name", album.GenreId);
+            ViewBag.ArtistId = new SelectList(_entities.Artists, "ArtistId", "Name", album.ArtistId);
             return View(album);
         }
 
@@ -79,12 +84,12 @@ namespace MvcMusicStore.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(album).State = EntityState.Modified;
-                db.SaveChanges();
+                _entities.Entry(album).State = EntityState.Modified;
+                _entities.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.GenreId = new SelectList(db.Genres, "GenreId", "Name", album.GenreId);
-            ViewBag.ArtistId = new SelectList(db.Artists, "ArtistId", "Name", album.ArtistId);
+            ViewBag.GenreId = new SelectList(_entities.Genres, "GenreId", "Name", album.GenreId);
+            ViewBag.ArtistId = new SelectList(_entities.Artists, "ArtistId", "Name", album.ArtistId);
             return View(album);
         }
 
@@ -93,7 +98,7 @@ namespace MvcMusicStore.Controllers
  
         public ActionResult Delete(int id)
         {
-            Album album = db.Albums.Find(id);
+            Album album = _entities.Albums.Find(id);
             return View(album);
         }
 
@@ -102,16 +107,16 @@ namespace MvcMusicStore.Controllers
 
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
-        {            
-            Album album = db.Albums.Find(id);
-            db.Albums.Remove(album);
-            db.SaveChanges();
+        {
+            Album album = _entities.Albums.Find(id);
+            _entities.Albums.Remove(album);
+            _entities.SaveChanges();
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            _entities.Dispose();
             base.Dispose(disposing);
         }
     }

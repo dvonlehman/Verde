@@ -2,7 +2,7 @@
 
 namespace MvcMusicStore.Models
 {
-    public class MusicStoreEntities : DbContext
+    public class MusicStoreEntities : DbContext, IMusicStoreEntities
     {
         public MusicStoreEntities() : base("MusicStore") { }
 
