@@ -29,7 +29,7 @@ namespace Verde.Autofac
         /// </remarks>
         protected override void Load(ContainerBuilder builder)
         {
-            builder.Register<HttpContextWrapper>(c=> new HttpContextLifetimeProxy(HttpContext.Current))
+            builder.Register<HttpContextWrapper>(c=> (HttpContextWrapper)HttpContext.Current.Items[typeof(HttpContextProxy)])
                 .As<HttpContextBase>()
                 .InstancePerHttpRequest();
                         

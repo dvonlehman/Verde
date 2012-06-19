@@ -9,6 +9,7 @@ using System.Web.Routing;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Verde.Executor;
 
 namespace Verde
 {
@@ -19,7 +20,7 @@ namespace Verde
     /// Implementation of this class borrows heavily from the MinProfilerHandler from the excellent MvcMiniProfiler project.
     /// http://miniprofiler.com/
     /// </remarks>
-    internal class IntegrationTestHandler : IHttpHandler, IRouteHandler
+    internal class IntegrationTestHandler : IHttpHandler, IRouteHandler, System.Web.SessionState.IRequiresSessionState
     {
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings { 
             Formatting= Newtonsoft.Json.Formatting.Indented, 
@@ -68,6 +69,8 @@ namespace Verde
                     //RenderTestsJson(context.Response.Output);
                     break;
                 case "execute":
+                    HttpContextProxy.Initialize();
+
                     foreach (var handler in Setup.CurrentSettings.BeginExecuteTestsRequestHandlers)
                         handler(this, EventArgs.Empty);
 

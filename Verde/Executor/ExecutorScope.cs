@@ -18,13 +18,15 @@ namespace Verde.Executor
         private readonly HttpContext _realHttpContext;
         private readonly HttpContextBase _httpContext;
 
-        public const string InChildExecutorScopeKey = "InChildExecutorScope";
-        public const string VerdeHttpContextKey = "VerdeHttpContext";
+        //public const string InChildExecutorScopeKey = "InChildExecutorScope";
+        //public const string VerdeHttpContextKey = "VerdeHttpContext";
         
         public ExecutorScope(ExecutorSettings settings)
         {
-            this.Settings = settings;
+            //Important that this line comes first so that ExecutorScope.Current does not return null.
             Current = this;
+
+            HttpContextProxy.Current.OverrideContextState(settings);
 
             //_realHttpContext = System.Web.HttpContext.Current;
 
@@ -34,9 +36,9 @@ namespace Verde.Executor
 
             // ASP.Net appears to lazy load the ServerVariables. Ensure they are already loaded before executing 
             // the simulated request, otherwise an exception is thrown.
-            var serverVariables = System.Web.HttpContext.Current.Request.ServerVariables;
+            //var serverVariables = System.Web.HttpContext.Current.Request.ServerVariables;
 
-            _httpContext = new ExecutorHttpContext(System.Web.HttpContext.Current, settings);
+            //_httpContext = new ExecutorHttpContext(settings);
             //_realHttpContext.Items[VerdeHttpContextKey] = _httpContext;
 
             foreach (var handler in Setup.CurrentSettings.ExecutorScopeCreatedHandlers)
@@ -46,18 +48,12 @@ namespace Verde.Executor
             this.Execute();
         }
 
-        protected ExecutorSettings Settings
-        {
-            get;
-            private set;
-        }
-
         /// <summary>
         /// The http context for the request being executed.
         /// </summary>
         public HttpContextBase HttpContext
         {
-            get { return _httpContext; }
+            get { return HttpContextProxy.Current; }
         }
 
         /// <summary>

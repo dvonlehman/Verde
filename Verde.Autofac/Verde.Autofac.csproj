@@ -45,9 +45,6 @@
     <Reference Include="Autofac.Integration.Mvc">
       <HintPath>..\packages\Autofac.Mvc3.2.6.2.859\lib\NET40\Autofac.Integration.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Core">
-      <HintPath>..\packages\Castle.Core.3.0.0.4001\lib\net40-client\Castle.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -62,8 +59,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpContextScopeWrapper.cs" />
-    <Compile Include="HttpRequestScopeWrapper.cs" />
     <Compile Include="OverrideWebTypesModule.cs" />
     <Compile Include="AutofacSetup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

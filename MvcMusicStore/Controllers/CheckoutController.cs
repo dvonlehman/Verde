@@ -46,14 +46,17 @@ namespace MvcMusicStore.Controllers
                 success = false;
             }
 
-            worker.DoWork += (sender, e) =>
+            string userName = User.Identity.Name;
+            var cart = ShoppingCart.GetCart(this.HttpContext);
+
+            worker.DoWork += (sender, args) =>
             {
                 if (!success)
                     return;
 
                 try
                 {
-                    order.Username = User.Identity.Name;
+                    order.Username = userName;
                     order.OrderDate = DateTime.Now;
 
                     //Save Order
@@ -61,11 +64,10 @@ namespace MvcMusicStore.Controllers
                     _entities.SaveChanges();
 
                     //Process the order
-                    var cart = ShoppingCart.GetCart(this.HttpContext);
                     cart.CreateOrder(order);               
                     success = true;
                 }
-                catch
+                catch (Exception e)
                 {
                     success = false;
                 }

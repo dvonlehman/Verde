@@ -74,7 +74,7 @@ namespace MvcMusicStore
             var builder = new ContainerBuilder();
             builder.RegisterModule(new AutofacWebTypesModule());
 
-            builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>().SingleInstance();
+            builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>();
             builder.RegisterControllers(System.Reflection.Assembly.GetExecutingAssembly());
 
             var container = builder.Build();
