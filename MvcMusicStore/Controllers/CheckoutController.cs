@@ -67,7 +67,7 @@ namespace MvcMusicStore.Controllers
                     cart.CreateOrder(order);               
                     success = true;
                 }
-                catch (Exception e)
+                catch
                 {
                     success = false;
                 }

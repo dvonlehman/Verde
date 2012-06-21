@@ -15,12 +15,6 @@ namespace Verde.Executor
     /// </remarks>
     public abstract class ExecutorScope : IDisposable
     {
-        private readonly HttpContext _realHttpContext;
-        private readonly HttpContextBase _httpContext;
-
-        //public const string InChildExecutorScopeKey = "InChildExecutorScope";
-        //public const string VerdeHttpContextKey = "VerdeHttpContext";
-        
         public ExecutorScope(ExecutorSettings settings)
         {
             //Important that this line comes first so that ExecutorScope.Current does not return null.

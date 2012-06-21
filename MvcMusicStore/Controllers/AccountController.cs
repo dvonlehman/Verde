@@ -6,7 +6,6 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
 using MvcMusicStore.Models;
-using MvcMusicStore.Models;
 
 namespace MvcMusicStore.Controllers
 {

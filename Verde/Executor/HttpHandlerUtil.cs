@@ -20,7 +20,6 @@ namespace Verde.Executor
         internal class ServerExecuteHttpHandlerWrapper : Page
         {
             private readonly IHttpHandler _httpHandler;
-            private Exception _error;
 
             public ServerExecuteHttpHandlerWrapper(IHttpHandler httpHandler)
             {
@@ -66,11 +65,6 @@ namespace Verde.Executor
                        throw new HttpException(500, "Exception thrown by child handler.", he);
                    }
                 }
-            }
-
-            public Exception Error
-            {
-                get { return _error; }
             }
         }
 

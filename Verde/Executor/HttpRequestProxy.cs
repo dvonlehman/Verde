@@ -48,7 +48,8 @@ namespace Verde.Executor
             _isAuthenticated = settings.IsAuthenticated;    
             _userAgent = settings.UserAgent;
             _contentType = !String.IsNullOrEmpty(settings.RequestContentType) ? settings.RequestContentType : "text/html";
-                    
+            _referrer = settings.Referrer;
+
             //if (_settings.Files == null)
             //    _settings.Files = new ExecutorHttpFileCollection();
         }

@@ -2,7 +2,7 @@
 
 bin/
 obj/
-packages/
+packages/*
 *.suo
 *.user
 *cache
