@@ -24,7 +24,7 @@ namespace MvcMusicStore.IntegrationTests
 
             var cart = TestUtil.AddItemsToCart(userName, storeDB.Albums.Take(numItemsInCart));
 
-            var form = new NameValueCollection
+            var form = new HttpValueCollection
             {
              { "FirstName","Miles"},
              {"LastName","Davis"},

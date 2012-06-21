@@ -7,7 +7,7 @@ using System.Web.Routing;
 using Autofac;
 using Autofac.Integration.Mvc;
 using Verde;
-using Verde.Autofac;
+using Verde.Executor;
 using MvcMusicStore.Models;
 using MvcMusicStore.Controllers;
 
@@ -36,7 +36,6 @@ namespace MvcMusicStore
                 "{controller}/{action}/{id}", // URL with parameters
                 new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
             );
-
         }
 
         protected void Application_Start()
@@ -53,8 +52,15 @@ namespace MvcMusicStore
                 }
             };
 
-            // Since we are using Autofac for DI, we need to make the Verde framework aware.
-            AutofacSetup.Initialize(settings);
+            // Because we are using Autofac for IoC, we need this step to ensure that HttpContextWrapper gets 
+            // resolved to the Verde.Executor.HttpContextProxy rather than HttpContext.Current. This step is only 
+            // necessary if the AutofacDependencyResolver is in use.
+            settings.BeginExecuteTestsRequest += (sender, e) =>
+            {
+                var resolver = DependencyResolver.Current as AutofacDependencyResolver;
+                if (resolver != null)
+                    new AutofacHttpContextModule().Configure(resolver.ApplicationContainer.ComponentRegistry);
+            };
 
             // Conditionally invoke this line only if integration tests should be enabled in the current environment.
             Verde.Setup.Initialize(settings);
@@ -80,6 +86,17 @@ namespace MvcMusicStore
             var container = builder.Build();
 
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+        }
+
+        // Used to override how HttpContextWrapper gets resolved on requests to /@integrationtests.
+        private class AutofacHttpContextModule : Module
+        {
+            protected override void Load(ContainerBuilder builder)
+            {
+                builder.Register<HttpContextWrapper>(c => (HttpContextWrapper)HttpContext.Current.Items[typeof(HttpContextProxy)])
+                    .As<HttpContextBase>()
+                    .InstancePerHttpRequest();
+            }
         }
     }
 }

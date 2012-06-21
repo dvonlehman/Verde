@@ -21,7 +21,7 @@ namespace Verde.Executor
         private string _httpMethod;
         private bool _isAuthenticated;
         private RequestContext _requestContext;
-        private NameValueCollection _queryString;
+        private HttpValueCollection _queryString;
         private Uri _referrer;
         private string _userAgent;
         //private readonly HttpFileCollectionProxy _files;
@@ -41,7 +41,7 @@ namespace Verde.Executor
 
             _url = settings.Url;
             _cookies = (settings.Cookies != null) ? settings.Cookies : new HttpCookieCollection();
-            _queryString = (settings.Url.Query.Length > 1) ? ParseQueryString(settings.Url.Query.Substring(1)) : new NameValueCollection();
+            _queryString = (settings.Url.Query.Length > 1) ? HttpValueCollection.Parse(settings.Url.Query.Substring(1)) : new HttpValueCollection();
             _form = (settings.Form  != null) ? settings.Form : new NameValueCollection();
             _headers = (settings.RequestHeaders != null) ? settings.RequestHeaders : new NameValueCollection();
             _httpMethod = !String.IsNullOrEmpty(settings.HttpMethod) ? settings.HttpMethod : (_form.Count > 0 ? "POST" : "GET");
@@ -144,22 +144,6 @@ namespace Verde.Executor
         public override RequestContext RequestContext
         {
             get { return _requestContext; }
-        }
-
-        private NameValueCollection ParseQueryString(string value)
-        {
-            if (String.IsNullOrEmpty(value)) return new NameValueCollection();
-
-            string[] pairs = value.Split('&');
-            var coll = new NameValueCollection(pairs.Length, StringComparer.CurrentCultureIgnoreCase);
-            for (var i = 0; i < pairs.Length; i++)
-            {
-                string[] keyValue = pairs[i].Split('=');
-                if (keyValue.Length == 2)
-                    coll[keyValue[0]] = HttpUtility.UrlDecode(keyValue[1]);
-            }
-
-            return coll;
         }
     }
 }

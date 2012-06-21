@@ -10,7 +10,7 @@ namespace Verde.Executor
     {
         // Since Server.Execute() doesn't propagate HttpExceptions where the status code is
         // anything other than 500, we need to wrap these exceptions ourselves.
-        public static IHttpHandler WrapForServerExecute(IHttpHandler httpHandler)
+        public static ServerExecuteHttpHandlerWrapper WrapForServerExecute(IHttpHandler httpHandler)
         {
             IHttpAsyncHandler asyncHandler = httpHandler as IHttpAsyncHandler;
             return (asyncHandler != null) ? new ServerExecuteHttpHandlerAsyncWrapper(asyncHandler) : new ServerExecuteHttpHandlerWrapper(httpHandler);
@@ -20,6 +20,7 @@ namespace Verde.Executor
         internal class ServerExecuteHttpHandlerWrapper : Page
         {
             private readonly IHttpHandler _httpHandler;
+            private Exception _error;
 
             public ServerExecuteHttpHandlerWrapper(IHttpHandler httpHandler)
             {
@@ -39,7 +40,7 @@ namespace Verde.Executor
                 Wrap(() => _httpHandler.ProcessRequest(context));
             }
 
-            protected static void Wrap(Action action)
+            protected void Wrap(Action action)
             {
                 Wrap(delegate
                 {
@@ -48,7 +49,7 @@ namespace Verde.Executor
                 });
             }
 
-            protected static TResult Wrap<TResult>(Func<TResult> func)
+            protected TResult Wrap<TResult>(Func<TResult> func)
             {
                 try
                 {
@@ -56,16 +57,20 @@ namespace Verde.Executor
                 }
                 catch (HttpException he)
                 {
-                    if (he.GetHttpCode() == 500)
-                    {
-                        throw; // doesn't need to be wrapped
-                    }
-                    else
-                    {
-                        HttpException newHe = new HttpException(500, "Exception thrown by child handler.", he);
-                        throw newHe;
-                    }
+                   if (he.GetHttpCode() == 500)
+                   {
+                      throw; // doesn't need to be wrapped
+                   }
+                   else
+                   {
+                       throw new HttpException(500, "Exception thrown by child handler.", he);
+                   }
                 }
+            }
+
+            public Exception Error
+            {
+                get { return _error; }
             }
         }
 

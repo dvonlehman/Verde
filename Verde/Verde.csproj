@@ -31,15 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\Verde.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core">
-      <HintPath>..\packages\Castle.Core.3.0.0.4001\lib\net40-client\Castle.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.5\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -63,10 +60,11 @@
   <ItemGroup>
     <Compile Include="Executor\ExecutorScope.cs" />
     <Compile Include="Attribute.cs" />
+    <Compile Include="Executor\ExecutorScopeException.cs" />
+    <Compile Include="Executor\HttpValueCollection.cs" />
     <Compile Include="Executor\HttpContextProxy.cs" />
     <Compile Include="Executor\HttpRequestProxy.cs" />
     <Compile Include="Executor\HttpSessionStateProxy.cs" />
-    <Compile Include="Executor\WrapperDependencyResolver.cs" />
     <Compile Include="IntegrationTestHandler.cs" />
     <Compile Include="ITestGuiRenderer.cs" />
     <Compile Include="ITestRunner.cs" />

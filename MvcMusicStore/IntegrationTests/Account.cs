@@ -20,7 +20,7 @@ namespace MvcMusicStore.IntegrationTests
         public void Register_InvalidPassword_Fails()
         {
             string invalidPassword = "1234";
-            var formData = new NameValueCollection {
+            var formData = new HttpValueCollection {
                 {"UserName", "Bill"},
                 {"Email", "bgates@microsoft.com"},
                 {"Password", invalidPassword},
@@ -54,7 +54,7 @@ namespace MvcMusicStore.IntegrationTests
         [Test]
         public void Register_ValidInput_Redirects()
         {
-            var formData = new NameValueCollection {
+            var formData = new HttpValueCollection {
                 {"UserName", "ChrisColumbus"},
                 {"Email", "chrisc@genoa.es"},
                 {"Password", "explore_1492"},

@@ -47,7 +47,7 @@ namespace Verde.Executor
         /// <summary>
         /// The request form values.
         /// </summary>
-        public NameValueCollection Form { get; set; }
+        public HttpValueCollection Form { get; set; }
         
         /// <summary>
         /// The request user agent.

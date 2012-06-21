@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Routing;
-using Castle.DynamicProxy;
 using System.Security.Principal;
 
 namespace Verde.Executor
@@ -37,7 +36,12 @@ namespace Verde.Executor
         private HttpContextProxy(HttpContext context) : base(context)
         {
             _request = new HttpRequestProxy(context.Request);
-            _session = new Lazy<HttpSessionStateProxy>(() => new HttpSessionStateProxy(HttpContext.Current.Session));
+            _session = new Lazy<HttpSessionStateProxy>(() =>
+            {
+                if (HttpContext.Current.Session == null)
+                    return null;
+                return new HttpSessionStateProxy(HttpContext.Current.Session);
+            });
 
             _user = DefaultIdentity;
             _items = new Hashtable();
@@ -51,7 +55,8 @@ namespace Verde.Executor
             _items = (settings.HttpContextItems != null) ? settings.HttpContextItems : new Hashtable();
             
             _request.OverrideRequestState(settings);
-            _session.Value.OverrideSessionState(settings);
+            if (_session.Value != null)
+                _session.Value.OverrideSessionState(settings);
 
             _request.RequestContext.HttpContext = this;
 

@@ -28,19 +28,6 @@ namespace Verde.Executor
 
             HttpContextProxy.Current.OverrideContextState(settings);
 
-            //_realHttpContext = System.Web.HttpContext.Current;
-
-            //// Write a value to the HttpContext.Items collection as a marker to indicate 
-            //// that we are in a child executor scope.
-            //_realHttpContext.Items[InChildExecutorScopeKey] = true;
-
-            // ASP.Net appears to lazy load the ServerVariables. Ensure they are already loaded before executing 
-            // the simulated request, otherwise an exception is thrown.
-            //var serverVariables = System.Web.HttpContext.Current.Request.ServerVariables;
-
-            //_httpContext = new ExecutorHttpContext(settings);
-            //_realHttpContext.Items[VerdeHttpContextKey] = _httpContext;
-
             foreach (var handler in Setup.CurrentSettings.ExecutorScopeCreatedHandlers)
                 handler(this, EventArgs.Empty);
 

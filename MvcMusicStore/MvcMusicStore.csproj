@@ -283,10 +283,6 @@
     <Content Include="Views\Store\GenreMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Verde.Autofac\Verde.Autofac.csproj">
-      <Project>{8324193f-e37c-41d9-865d-5c342a439b26}</Project>
-      <Name>Verde.Autofac</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Verde\Verde.csproj">
       <Project>{f5f0ed2a-7b87-4a44-9d89-be64b4996d48}</Project>
       <Name>Verde</Name>

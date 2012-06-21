@@ -61,9 +61,10 @@ namespace Verde
         public string GuiHeaderText { get; set; }
 
         /// <summary>
-        /// The number of seconds before an individual test should timeout.
+        /// The number of seconds to allow for the request to execute tests should be allowed to take.
         /// </summary>
-        public int TestTimeout { get; set; }
+        /// <remarks>The default is 90 seconds.</remarks>
+        public int ExecuteTimeout { get; set; }
 
         /// <summary>
         /// Function to invoke when a request to the integration test handler is initiated. The delegate
@@ -135,8 +136,8 @@ namespace Verde
                 GuiRenderer = new QUnitTestGuiRenderer();
             if (TestRunner == null)
                 TestRunner = new NUnitTestRunner(this);
-            if (TestTimeout <= 0)
-                TestTimeout = 5000;
+            if (ExecuteTimeout <= 0)
+                ExecuteTimeout = 90;
         }
     }
 }

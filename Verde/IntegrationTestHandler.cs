@@ -66,9 +66,10 @@ namespace Verde
                         fixtures= Setup.CurrentSettings.TestRunner.LoadTestFixtures()
                     }, _serializerSettings));
 
-                    //RenderTestsJson(context.Response.Output);
                     break;
                 case "execute":
+                    context.Server.ScriptTimeout = Setup.CurrentSettings.ExecuteTimeout;
+
                     HttpContextProxy.Initialize();
 
                     foreach (var handler in Setup.CurrentSettings.BeginExecuteTestsRequestHandlers)

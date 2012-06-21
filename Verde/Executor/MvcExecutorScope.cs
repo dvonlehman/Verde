@@ -41,7 +41,16 @@ namespace Verde.Executor
 
                 using (var writer = new StringWriter())
                 {
-                    System.Web.HttpContext.Current.Server.Execute(HttpHandlerUtil.WrapForServerExecute(handler), writer, false /* preserveForm */);
+                    var wrappedHandler = HttpHandlerUtil.WrapForServerExecute(handler);
+                    try
+                    {
+                        System.Web.HttpContext.Current.Server.Execute(wrappedHandler, writer, false /* preserveForm */);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ExecutorScopeException(FindInnermostException(e));
+                    }
+
                     this.ResponseText = writer.ToString();
                 }
 
@@ -56,6 +65,15 @@ namespace Verde.Executor
                 // Set the ControllerFactory back to the original value.
                 ControllerBuilder.Current.SetControllerFactory(controllerFactory);
             }
+        }
+
+        private Exception FindInnermostException(Exception e)
+        {
+            Exception current = e;
+            while (current.InnerException != null)
+                current = current.InnerException;
+
+            return current;
         }
 
         public string Action

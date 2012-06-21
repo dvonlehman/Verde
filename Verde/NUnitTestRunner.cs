@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using NUnit.Framework;
+using Verde.Executor;
 
 namespace Verde
 {
@@ -84,7 +85,11 @@ namespace Verde
                 if (assertException != null)
                     listener.TestFinished(true, false, assertException.Message, null);
                 else
-                    listener.TestFinished(true, true, e.InnerException.Message, e.InnerException.StackTrace);
+                {
+                    var executorException = e.InnerException as ExecutorScopeException;
+                    var realException = (executorException != null) ? executorException.InnerException : e.InnerException;
+                    listener.TestFinished(true, true, realException.Message, realException.ToString());
+                }
 
                 return;
             }
