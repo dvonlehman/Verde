@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Verde : Integration test and application health verification framework for ASP.Net MVC" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Verde</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/dvonlehman/Verde">View on GitHub</a>
+
+          <h1 id="project_title">Verde</h1>
+          <h2 id="project_tagline">Integration test and application health verification framework for ASP.Net MVC</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/dvonlehman/Verde/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/dvonlehman/Verde/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>Overview</h2>
+
+<p>Verde is an integration test and application health verification framework for ASP.Net MVC. Integration tests are intended to automate verifying the different components of your application such as databases, web services, etc. are working together correctly. Unlike test runners integrated into Visual Studio or standalone applications, the Verde framework runs tests directly within your web application; leveraging the same configuration settings, security permissions, network topology, etc. This allows exposing issues that may not otherwise be encountered until an end-user actually starts using the application. Verde is intended to complement a robust suite of unit tests; the unit tests ensure all the individual units of work function correctly, while integration tests ensure everything works together. </p>
+
+<p>The easiest way to add Verde to your project is via NuGet - <a href="https://nuget.org/packages/Verde/0.5.1">https://nuget.org/packages/Verde/0.5.1</a></p>
+
+<div class="highlight">
+<pre>PM<span class="p">&gt;</span> <span class="n">Install</span>-Package Verde
+</pre>
+</div>
+
+
+<h2>Getting Started</h2>
+
+<p>Verde provides a browser based GUI based on the the <a href="http://docs.jquery.com/QUnit">QUnit</a> JavaScript test framework. </p>
+
+<p><img src="http://dl.dropbox.com/u/7446385/verde_gui_screenshot.PNG" alt="Screenshot"></p>
+
+<p>The GUI in turn makes AJAX calls to a RESTful endpoint on your server to execute tests and get back the results as a JSON data structure. These same RESTful endpoints can also be invoked directly by an automated deployment script or application monitoring service.</p>
+
+<p>The framework is designed to be easily dropped into an existing MVC application with minimal configuration overhead, i.e., no changes to your web.config and routing rules are automatically injected by the framework (modeled after the MvcMiniProfiler). Basically all you need to do is add a reference to the Verde library and add a small bit to the <strong>Application_Start</strong> event in your global.asax.</p>
+
+<div class="highlight">
+<pre><span class="c1">// Minimal setup</span>
+<span class="n">Verde</span><span class="p">.</span><span class="n">Setup</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="k">new</span> <span class="n">Verde</span><span class="p">.</span><span class="n">Settings</span>
+<span class="p">{</span>
+    <span class="n">TestsAssembly</span> <span class="p">=</span> <span class="n">System</span><span class="p">.</span><span class="n">Reflection</span><span class="p">.</span><span class="n">Assembly</span><span class="p">.</span><span class="n">GetExecutingAssembly</span><span class="p">()</span>
+<span class="p">});</span>
+</pre>
+</div>
+
+
+<p>The minimal setup requires you to only provide a reference to the assembly where your integration tests are defined.  In this case the tests are assumed to reside in the MVC Application itself, but they could just as easily be in a dedicated class library. There are several other settings you can override if you choose, but none are required. You could always wrap this statement in a conditional block so that the Verde framework is enabled based on a custom configuration setting. Additionally you can choose to authorize access to the Verde endpoints by providing a custom AuthorizationCheck delegate:</p>
+
+<div class="highlight">
+<pre><span class="n">Verde</span><span class="p">.</span><span class="n">Setup</span><span class="p">.</span><span class="n">Initialize</span><span class="p">(</span><span class="k">new</span> <span class="n">Verde</span><span class="p">.</span><span class="n">Settings</span>
+<span class="p">{</span>
+    <span class="n">TestsAssembly</span> <span class="p">=</span> <span class="n">System</span><span class="p">.</span><span class="n">Reflection</span><span class="p">.</span><span class="n">Assembly</span><span class="p">.</span><span class="n">GetExecutingAssembly</span><span class="p">(),</span>
+    <span class="n">AuthorizationCheck</span> <span class="p">=</span> <span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">context</span><span class="p">.</span><span class="n">User</span><span class="p">.</span><span class="n">IsInRole</span><span class="p">(</span><span class="s">"admin"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre>
+</div>
+
+
+<p>The Initialize method automatically registers several MVC routes in your application's route table. By default these routes are registered under a "@integrationtests" path, but you can override this using <strong>Settings.RoutePath</strong>.</p>
+
+<ul>
+<li>
+<strong>http://your_application_url/@integrationtests</strong> - opens the GUI test runner</li>
+<li>
+<strong>http://your_application_url/@integrationtests/tests</strong> - returns a JSON listing of all the fixtures and tests found in the TestsAssembly</li>
+<li>
+<strong>http://your_application_url/@integrationtests/execute</strong> - execute the tests. </li>
+</ul><p>If no querystring parameters are provided to the /execute command, all tests are run. However you can also limit what tests are run to a single fixture or a single test in a fixture by appending the fixture and/or test parameters to the URL like so: <em>/@integrationtests/execute?fixture=MvcMusicStore.IntegrationTests.ShoppingCart</em> or <em>/@integrationtests/execute/fixture=MvcMusicStore.IntegrationTests.ShoppingCart&amp;test=RemoveFromCart_ValidJson</em></p>
+
+<p>Here is a sample JSON response from the /execute command:</p>
+
+<div class="highlight">
+<pre><span class="p">{</span>
+  <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">823</span><span class="p">,</span>
+  <span class="nt">"failed"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nt">"tests"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">"testName"</span><span class="p">:</span> <span class="s2">"AddToCart_ValidItem_Succeeds"</span><span class="p">,</span>
+      <span class="nt">"fixture"</span><span class="p">:</span> <span class="s2">"MvcMusicStore.IntegrationTests.ShoppingCart"</span><span class="p">,</span>
+      <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">219</span><span class="p">,</span>
+      <span class="nt">"failed"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">"message"</span><span class="p">:</span> <span class="s2">"Passed"</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">"testName"</span><span class="p">:</span> <span class="s2">"ViewCart_ExpectedHtml"</span><span class="p">,</span>
+      <span class="nt">"fixture"</span><span class="p">:</span> <span class="s2">"MvcMusicStore.IntegrationTests.ShoppingCart"</span><span class="p">,</span>
+      <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">430</span><span class="p">,</span>
+      <span class="nt">"failed"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nt">"message"</span><span class="p">:</span> <span class="s2">"Passed"</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">"testName"</span><span class="p">:</span> <span class="s2">"RemoveFromCart_ValidJson"</span><span class="p">,</span>
+      <span class="nt">"fixture"</span><span class="p">:</span> <span class="s2">"MvcMusicStore.IntegrationTests.ShoppingCart"</span><span class="p">,</span>
+      <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">175</span><span class="p">,</span>
+      <span class="nt">"failed"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="nt">"message"</span><span class="p">:</span> <span class="s2">"  The shopping cart should have 0 items left.\r\n  Expected: 1\r\n  But was:  0\r\n\r\n"</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre>
+</div>
+
+
+<p>Now all that's left is to write some tests.</p>
+
+<h2>Writing Tests</h2>
+
+<p>Verde integration tests are simply NUnit tests decorated with the IntegrationTest attribute declared within a class decorated by the IntegrationFixture attribute. When a test executes, it in turn creates a nested handler corresponding to the application URL being tested. After the  method completes, control is returned back to the current request. The bit that makes this possible is the <a href="http://msdn.microsoft.com/en-us/library/system.web.httpserverutility.execute.aspx">HttpServerUtility.Execute</a> method. The Verde.Executor namespace defines a MvcExectorScope class that is used to define the scope of this nested execution.</p>
+
+<p>The source code includes a fork of <a href="http://weblogs.asp.net/jgalloway/">Jon Galloway</a>'s <a href="http://mvcmusicstore.codeplex.com/">MvcMusicStore sample app</a> that has been augmented with Verde integration tests. Here are some examples:</p>
+
+<h3>Basic ViewResult</h3>
+
+<p>In this test we get an arbitrary Album and define a MvcExecutorScope for the details page of that album. It is highly recommended that a <strong>using</strong> statement be implemented to control the lifetime of the ExecutorScope. Inside the <strong>using</strong> block, the <em>scope</em> variable provides us access to some helpful contextual objects like the HttpContext, Controller, ViewData, Action, and ResponseText that the test can make assertions against. The <a href="http://nuget.org/packages/ScrapySharp">ScrapySharp</a> library, in conjunction with the <a href="http://htmlagilitypack.codeplex.com/">HtmlAgilityPack</a> (both easily installable via NuGet), provides a CSS selector engine that allows the test to examine the contents of the HTML ResponseText in a more elegant way than brute force string matching.</p>
+
+<div class="highlight">
+<pre><span class="na">[IntegrationTest]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="nf">Index_Load_ExpectedHtml</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Get a product to load the details page for.</span>
+    <span class="kt">var</span> <span class="n">album</span> <span class="p">=</span> <span class="n">storeDB</span><span class="p">.</span><span class="n">Albums</span>
+        <span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">First</span><span class="p">();</span>
+
+    <span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">scope</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MvcExecutorScope</span><span class="p">(</span><span class="s">"Store/Details/"</span> <span class="p">+</span> <span class="n">album</span><span class="p">.</span><span class="n">AlbumId</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="m">200</span><span class="p">,</span> <span class="n">scope</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Response</span><span class="p">.</span><span class="n">StatusCode</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">IsTrue</span><span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">Controller</span> <span class="k">is</span> <span class="n">StoreController</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">"Details"</span><span class="p">,</span> <span class="n">scope</span><span class="p">.</span><span class="n">Action</span><span class="p">);</span>
+
+        <span class="kt">var</span> <span class="n">model</span> <span class="p">=</span> <span class="n">scope</span><span class="p">.</span><span class="n">Controller</span><span class="p">.</span><span class="n">ViewData</span><span class="p">.</span><span class="n">Model</span> <span class="k">as</span> <span class="n">Album</span><span class="p">;</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">IsNotNull</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="n">album</span><span class="p">.</span><span class="n">AlbumId</span><span class="p">,</span> <span class="n">model</span><span class="p">.</span><span class="n">AlbumId</span><span class="p">);</span>
+
+        <span class="n">Assert</span><span class="p">.</span><span class="n">IsFalse</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">ResponseText</span><span class="p">));</span>
+
+        <span class="c1">// Load the ResponseText into an HtmlDocument</span>
+        <span class="kt">var</span> <span class="n">html</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HtmlDocument</span><span class="p">();</span>
+        <span class="n">html</span><span class="p">.</span><span class="n">LoadHtml</span><span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">ResponseText</span><span class="p">);</span>
+
+        <span class="c1">// Use ScrappySharp CSS selector to make assertions about the rendered HTML</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="n">album</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span> <span class="n">html</span><span class="p">.</span><span class="n">DocumentNode</span><span class="p">.</span><span class="n">CssSelect</span><span class="p">(</span><span class="s">"#main h2"</span><span class="p">).</span><span class="n">First</span><span class="p">().</span><span class="n">InnerText</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre>
+</div>
+
+
+<h3>RedirectAction</h3>
+
+<p>We can also test action results that do a redirect. </p>
+
+<div class="highlight">
+<pre><span class="na">[IntegrationTest]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="nf">AddToCart_ValidItem_Succeeds</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Get a product to load the details page for.</span>
+    <span class="kt">var</span> <span class="n">album</span> <span class="p">=</span> <span class="n">storeDB</span><span class="p">.</span><span class="n">Albums</span>
+        <span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">First</span><span class="p">();</span>
+
+    <span class="kt">var</span> <span class="n">settings</span> <span class="p">=</span> <span class="k">new</span> <span class="n">ExecutorSettings</span><span class="p">(</span><span class="s">"ShoppingCart/AddToCart/"</span> <span class="p">+</span> <span class="n">album</span><span class="p">.</span><span class="n">AlbumId</span><span class="p">)</span> <span class="p">{</span> 
+        <span class="n">User</span> <span class="p">=</span> <span class="k">new</span> <span class="n">GenericPrincipal</span><span class="p">(</span><span class="k">new</span> <span class="n">GenericIdentity</span><span class="p">(</span><span class="s">"GenghisKahn"</span><span class="p">),</span> <span class="k">null</span><span class="p">)</span> 
+    <span class="p">};</span>
+
+    <span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">scope</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MvcExecutorScope</span><span class="p">(</span><span class="n">settings</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="m">302</span><span class="p">,</span> <span class="n">scope</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Response</span><span class="p">.</span><span class="n">StatusCode</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">"/ShoppingCart"</span><span class="p">,</span> <span class="n">scope</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Response</span><span class="p">.</span><span class="n">RedirectLocation</span><span class="p">);</span>
+
+        <span class="c1">// Now verify that the cart contains the item we just added.</span>
+        <span class="kt">var</span> <span class="n">cart</span> <span class="p">=</span> <span class="n">MvcMusicStore</span><span class="p">.</span><span class="n">Models</span><span class="p">.</span><span class="n">ShoppingCart</span><span class="p">.</span><span class="n">GetCart</span><span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">);</span>
+        <span class="kt">var</span> <span class="n">cartItems</span> <span class="p">=</span> <span class="n">cart</span><span class="p">.</span><span class="n">GetCartItems</span><span class="p">();</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="n">cartItems</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="n">album</span><span class="p">.</span><span class="n">AlbumId</span><span class="p">,</span> <span class="n">cartItems</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="n">AlbumId</span><span class="p">);</span>
+
+        <span class="c1">// Finally clear the cart.</span>
+        <span class="n">cart</span><span class="p">.</span><span class="n">EmptyCart</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre>
+</div>
+
+
+<h3>POST Request and JSON Responses</h3>
+
+<p>We can also test a POST request and Json action results.</p>
+
+<div class="highlight">
+<pre><span class="na">[IntegrationTest]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="nf">RemoveFromCart_ValidJson</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Add an item to the cart so we have something to remove.</span>
+    <span class="kt">string</span> <span class="n">userName</span> <span class="p">=</span> <span class="s">"JimmyHendrix"</span><span class="p">;</span>
+    <span class="n">MvcMusicStore</span><span class="p">.</span><span class="n">Models</span><span class="p">.</span><span class="n">ShoppingCart</span> <span class="n">cart</span> <span class="p">=</span> <span class="n">TestUtil</span><span class="p">.</span><span class="n">AddItemsToCart</span><span class="p">(</span>
+        <span class="n">userName</span><span class="p">,</span> <span class="n">storeDB</span><span class="p">.</span><span class="n">Albums</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="m">1</span><span class="p">));</span>
+    <span class="kt">var</span> <span class="n">recordId</span> <span class="p">=</span> <span class="n">cart</span><span class="p">.</span><span class="n">GetCartItems</span><span class="p">().</span><span class="n">First</span><span class="p">().</span><span class="n">RecordId</span><span class="p">;</span>                       
+
+    <span class="kt">var</span> <span class="n">settings</span> <span class="p">=</span> <span class="k">new</span> <span class="n">ExecutorSettings</span><span class="p">(</span><span class="s">"ShoppingCart/RemoveFromCart/"</span> <span class="p">+</span> <span class="n">recordId</span><span class="p">)</span> 
+    <span class="p">{</span> 
+        <span class="n">User</span> <span class="p">=</span> <span class="n">TestUtil</span><span class="p">.</span><span class="n">CreateUser</span><span class="p">(</span><span class="n">userName</span><span class="p">),</span> 
+        <span class="n">HttpMethod</span> <span class="p">=</span> <span class="s">"POST"</span>
+    <span class="p">};</span>
+
+    <span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">scope</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MvcExecutorScope</span><span class="p">(</span><span class="n">settings</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">"application/json"</span><span class="p">,</span> <span class="n">scope</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Response</span><span class="p">.</span><span class="n">ContentType</span><span class="p">);</span>
+
+    <span class="c1">// Use JSON.Net to deserialize the response</span>
+        <span class="kt">var</span> <span class="n">deserializedResponse</span> <span class="p">=</span> <span class="n">JsonConvert</span><span class="p">.</span><span class="n">DeserializeObject</span><span class="p">&lt;</span><span class="n">ShoppingCartRemoveViewModel</span><span class="p">&gt;</span>
+           <span class="p">(</span><span class="n">scope</span><span class="p">.</span><span class="n">ResponseText</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="m">0.0d</span><span class="p">,</span> <span class="n">deserializedResponse</span><span class="p">.</span><span class="n">CartTotal</span><span class="p">,</span> 
+           <span class="s">"The shopping cart total should be $0.00."</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="n">deserializedResponse</span><span class="p">.</span><span class="n">ItemCount</span><span class="p">,</span> 
+           <span class="s">"The shopping cart should have 0 items left."</span><span class="p">);</span>
+        <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="n">recordId</span><span class="p">,</span> <span class="n">deserializedResponse</span><span class="p">.</span><span class="n">DeleteId</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre>
+</div>
+
+
+<h2>More Details</h2>
+
+<p><img src="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgVmVyZGUgU2VxdWVuY2UKCnBhcnRpY2lwYW50ICIAFwZHVUkgPGJyb3dzZXI-IiBhcyBndWkAHA1JbnRlZ3JhdGlvblRlc3RIYW5kbGVyIGFzIGgABQYASg1OVW5pdFRlc3RSdW5uACEGcgAFBQA8GEZpeHR1cmUgYXMgZgAFBgCBGg1NdmNFeGVjdXRvclNjb3AAIwVzY29wABURRnJhbWV3b3JrIGFzIG12YwCBYA1Zb3VyQ29udHJvbACBNQdjAAUJCgoKZ3VpLT4AgUcHOiAAagZlIFRlc3RzCgCBXgctPgCBQQYADxAKbG9vcCBmb3JlYWNoAIFFEwoAgXgGLT4AgVYHOiBDcmVhdGUKYWN0aXZhdGUAgW0JADEYVGVzdAA0Ekludm9rZQoAgiwHLT4Agg8FAEsSAIIlBgCCLAUtPm12YzogU2VydmVyLgCBXgcKbXZjLT4AggMKAFEIIEFjdGlvbgpub3RlIHJpZ2h0IG9mAIIpDCAgICAgICAgAIJLC2UAgjIGcyAAFAlqdXN0IGFzIGl0IGRvZXMgd2hlbgAxCWkAgT0FZCBieSBhIACEewcuAFMFZW5kIG5vdGUKAIMbCi0AgTcHcmV0dXJuAIEXB1Jlc3VsdACBPQYAgVcFAIMzBwCBJxUAhFUIICAgTWFrZSBBc3NlcnQgc3RhdGVtZW50cwoAbgkAgkUQRGlzcG9zZQpkZQCCSQ8ABgsAhTQIZW5kIGxvb3AAAQhwCgCDeggAhFcLAIE_BwCGIgUAgT8FAIRdCi0-Z3VpOgCBYAdKU09OIHIAGwcKCgoK&amp;s=vs2010" alt="Sequence Diagram"><a href="http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgVmVyZGUgU2VxdWVuY2UKCnBhcnRpY2lwYW50ICIAFwZHVUkgPGJyb3dzZXI-IiBhcyBndWkAHA1JbnRlZ3JhdGlvblRlc3RIYW5kbGVyIGFzIGgABQYASg1OVW5pdFRlc3RSdW5uACEGcgAFBQA8GEZpeHR1cmUgYXMgZgAFBgCBGg1NdmNFeGVjdXRvclNjb3AAIwVzY29wABURRnJhbWV3b3JrIGFzIG12YwCBYA1Zb3VyQ29udHJvbACBNQdjAAUJCgoKZ3VpLT4AgUcHOiAAagZlIFRlc3RzCgCBXgctPgCBQQYADxAKbG9vcCBmb3JlYWNoAIFFEwoAgXgGLT4AgVYHOiBDcmVhdGUKYWN0aXZhdGUAgW0JADEYVGVzdAA0Ekludm9rZQoAgiwHLT4Agg8FAEsSAIIlBgCCLAUtPm12YzogU2VydmVyLgCBXgcKbXZjLT4AggMKAFEIIEFjdGlvbgpub3RlIHJpZ2h0IG9mAIIpDCAgICAgICAgAIJLC2UAgjIGcyAAFAlqdXN0IGFzIGl0IGRvZXMgd2hlbgAxCWkAgT0FZCBieSBhIACEewcuAFMFZW5kIG5vdGUKAIMbCi0AgTcHcmV0dXJuAIEXB1Jlc3VsdACBPQYAgVcFAIMzBwCBJxUAhFUIICAgTWFrZSBBc3NlcnQgc3RhdGVtZW50cwoAbgkAgkUQRGlzcG9zZQpkZQCCSQ8ABgsAhTQIZW5kIGxvb3AAAQhwCgCDeggAhFcLAIE_BwCGIgUAgT8FAIRdCi0-Z3VpOgCBYAdKU09OIHIAGwcKCgoK&amp;s=vs2010">View Larger</a></p>
+
+<h2>What's with the name?</h2>
+
+<p>In case it's not obvious, verde is Spanish for green, passing tests are green...clever right?</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Verde maintained by <a href="https://github.com/dvonlehman">dvonlehman</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-32607724-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
