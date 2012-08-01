@@ -68,10 +68,12 @@
     <Compile Include="Executor\HttpRequestProxy.cs" />
     <Compile Include="Executor\HttpSessionStateProxy.cs" />
     <Compile Include="IntegrationTestHandler.cs" />
+    <Compile Include="ITestFixtureFactory.cs" />
     <Compile Include="ITestGuiRenderer.cs" />
     <Compile Include="ITestRunner.cs" />
     <Compile Include="Executor\MvcExecutorScope.cs" />
     <Compile Include="Executor\HttpHandlerUtil.cs" />
+    <Compile Include="ActivatorTestFixtureFactory.cs" />
     <Compile Include="TestRunEventListener.cs" />
     <Compile Include="NUnitTestFixture.cs" />
     <Compile Include="NUnitTestRunner.cs" />
