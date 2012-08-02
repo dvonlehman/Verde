@@ -52,7 +52,8 @@ namespace Verde
             else
             {
                 var fixture = FindFixture(fixtureName);
-                var fixtureInstance = InstantiateFixture(fixture);
+
+                var fixtureInstance = _settings.TestFixtureFactory.InstantiateFixture(fixture.Type);
 
                 var method = fixture.Tests.FirstOrDefault(m => string.Compare(m.Name, testName, true) == 0);
                 if (method == null)
@@ -67,7 +68,7 @@ namespace Verde
 
         private void ExecuteFixture(NUnitTestFixture fixture, TestRunEventListener listener)
         {
-            var fixtureInstance = InstantiateFixture(fixture);
+        	var fixtureInstance = _settings.TestFixtureFactory.InstantiateFixture(fixture.Type);
             foreach (var method in fixture.Tests)
                 InvokeTest(fixtureInstance, fixture.Name, method, listener);
         }

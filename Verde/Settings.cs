@@ -50,6 +50,11 @@ namespace Verde
         [JsonIgnore]
         public ITestRunner TestRunner { get; set; }
 
+		/// <summary>
+		/// Provide a factory to instantiate the test fixtures.
+		/// </summary>
+    	public ITestFixtureFactory TestFixtureFactory { get; set; }
+
         /// <summary>
         /// The value of the &lt;title&gt; element on the integration test GUI page.
         /// </summary>
@@ -136,6 +141,8 @@ namespace Verde
                 GuiRenderer = new QUnitTestGuiRenderer();
             if (TestRunner == null)
                 TestRunner = new NUnitTestRunner(this);
+			if(TestFixtureFactory == null)
+				TestFixtureFactory = new ActivatorTestFixtureFactory();
             if (ExecuteTimeout <= 0)
                 ExecuteTimeout = 90;
         }
