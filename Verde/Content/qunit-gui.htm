@@ -14,51 +14,59 @@
 		<div id="qunit-fixture">test markup, will be hidden</div>
 
         <script type="text/javascript">
-            $(document).ready(function () {
+        	$(document).ready(function () {
 
-                $.ajax({
-                    url: "@@PATH@@/tests",
-                    dataType: "json",
-                    success: function (data) {
-                       runTests(data)
-                    }
-                });
+        		$.ajax({
+        			url: "@@PATH@@/tests",
+        			dataType: "json",
+        			success: function (data) {
+        				runTests(data)
+        			}
+        		});
 
-                function runTests(data) {
-                    $.each(data.fixtures, function () {
-                        var fixture = this;
-                        module(fixture.name);
+        		function runTests(data) {
+        			$.each(data.fixtures, function () {
+        				var fixture = this;
+        				module(fixture.name);
 
-                        $.each(fixture.tests, function () {
-                            var testName = this;
-                            test(testName, function () {
-                                executeTest(data.settings, fixture.name, testName)
-                            });
-                        });
-                    });
-                }
+        				$.each(fixture.tests, function () {
+        					var testName = this;
+        					test(testName, function () {
+        						executeTest(data.settings, fixture.name, testName)
+        					});
+        				});
+        			});
+        		}
 
-                function executeTest(settings, fixtureName, testName) {
-                    $.ajax({
-                        url: "@@PATH@@/execute",
-                        data: {fixture: fixtureName, test: testName},
-                        timeout: settings.testTimeout,
-                        dataType: "json",
-                        async:false,
-                        error: function(xhr, status, errorThrown) {
-                            if (status === "timeout")
-                                ok(false, "Page timed out");
-                            else {
-                                var data = $.parseJSON(xhr.responseText).tests[0];
-                                ok(false, "Test Failed (" + data.duration + " ms)\r" + data.message);
-                            }
-                        },
-                        success: function(data, status, xhr) {
-                            ok(true, "Test Passed (" + data.tests[0].duration + " ms)");
-                        }
-                    });
-                }
-            });
+        		function executeTest(settings, fixtureName, testName) {
+        			$.ajax({
+        				url: "@@PATH@@/execute",
+        				data: { fixture: fixtureName, test: testName },
+        				timeout: settings.testTimeout,
+        				dataType: "json",
+        				async: false,
+        				error: function (xhr, status, errorThrown) {
+        					if (status === "timeout")
+        						ok(false, "Page timed out");
+        					else {
+        						var data = $.parseJSON(xhr.responseText).tests[0];
+        						ok(false, "Test Failed (" + data.duration + " ms)\r" + data.message);
+        					}
+        				},
+        				success: function (data, status, xhr) {
+        					var data = $.parseJSON(xhr.responseText).tests[0];
+        					var message = "Test Passed (" + data.duration + " ms)";
+
+									//custom message
+        					if (data.message != "Passed") {
+        						message += "\r" + data.message;
+        					}
+        					
+        					ok(true, message);
+        				}
+        			});
+        		}
+        	});
         </script>
 	</body>
 </html>
