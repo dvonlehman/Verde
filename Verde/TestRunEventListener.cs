@@ -32,10 +32,16 @@ namespace Verde
 
         public void TestFinished(bool isFailure, bool isError, string message, string stackTrace)
         {
-            if (isFailure || isError)
-                RecordTestFinished(true, message + "\r\n" + stackTrace);
-            else
-                RecordTestFinished(false, "Passed");
+			if (isFailure || isError)
+			{
+				RecordTestFinished(true, message + "\r\n" + stackTrace);
+			}
+			else
+			{
+				//To retrieve a message from 'SuccessException' (Assert.Fail)
+				string returnedMessage = string.IsNullOrWhiteSpace(message) ? "Passed" : message;
+				RecordTestFinished(false, returnedMessage);
+			}
         }
 
         public void TestStarted(string fixtureName, string testName)

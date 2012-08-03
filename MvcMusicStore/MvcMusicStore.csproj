@@ -135,6 +135,7 @@
     <Compile Include="IntegrationTests\DetailsPage.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IntegrationTests\GeneralTests.cs" />
     <Compile Include="IntegrationTests\HomePage.cs">
       <SubType>Code</SubType>
     </Compile>

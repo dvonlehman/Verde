@@ -82,15 +82,21 @@ namespace Verde
             }
             catch (TargetInvocationException e)
             {
-                var assertException = e.InnerException as AssertionException;
-                if (assertException != null)
-                    listener.TestFinished(true, false, assertException.Message, null);
-                else
-                {
-                    var executorException = e.InnerException as ExecutorScopeException;
-                    var realException = (executorException != null) ? executorException.InnerException : e.InnerException;
-                    listener.TestFinished(true, true, realException.Message, realException.ToString());
-                }
+            	Exception innerException = e.InnerException;
+
+				if (innerException is AssertionException)
+				{
+					listener.TestFinished(true, false, innerException.Message, null);
+				}
+					//
+				else if (innerException is SuccessException)
+				{
+					listener.TestFinished(false, false, innerException.Message, null);
+				}
+				else
+				{
+					listener.TestFinished(true, true, innerException.Message, innerException.ToString());
+				}
 
                 return;
             }
