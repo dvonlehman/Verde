@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+
 
 namespace Verde
 {
@@ -7,6 +9,14 @@ namespace Verde
 	/// </summary>
 	public class ActivatorTestFixtureFactory : ITestFixtureFactory
 	{
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException">Can't instantiate the IntegrationFixture</exception>
 		public object InstantiateFixture(Type type)
 		{
 			try
