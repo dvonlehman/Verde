@@ -3,7 +3,7 @@ using Verde;
 
 namespace MvcMusicStore.IntegrationTests
 {
-	[IntegrationFixture]
+	//[IntegrationFixture]
 	public class PassTests
 	{
 		[IntegrationTest]

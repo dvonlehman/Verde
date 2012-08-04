@@ -16,7 +16,14 @@ namespace MvcMusicStore.IntegrationTests
     [IntegrationFixture(Sequence=5)]
     public class DetailsPage
     {
-        MusicStoreEntities storeDB = new MusicStoreEntities();
+		private IMusicStoreEntities storeDB;
+
+
+		public DetailsPage(IMusicStoreEntities storeDB)
+		{
+			this.storeDB = storeDB;
+		}
+
 
         [IntegrationTest]
         public void Index_Load_ExpectedHtml()
