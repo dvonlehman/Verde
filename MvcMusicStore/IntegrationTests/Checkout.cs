@@ -14,7 +14,14 @@ namespace MvcMusicStore.IntegrationTests
     [IntegrationFixture(Sequence=20)]
     public class Checkout
     {
-        MusicStoreEntities storeDB = new MusicStoreEntities();
+		private IMusicStoreEntities storeDB;
+
+
+		public Checkout(IMusicStoreEntities storeDB)
+		{
+			this.storeDB = storeDB;
+		}
+
 
         [IntegrationTest]
         public void Checkout_Success()
