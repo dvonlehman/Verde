@@ -175,6 +175,7 @@
 	color: #5E740B;
 	background-color: #fff;
 	border-left: 26px solid #C6E746;
+	white-space: pre;
 }
 
 #qunit-tests .pass                          { color: #528CE0; background-color: #D2E0E6; }

@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Autofac;
 using Autofac.Integration.Mvc;
+using AutofacContrib.CommonServiceLocator;
+using Microsoft.Practices.ServiceLocation;
 using Verde;
 using Verde.Executor;
 using MvcMusicStore.Models;
 using MvcMusicStore.Controllers;
+using Module = Autofac.Module;
 
 namespace MvcMusicStore
 {
@@ -40,7 +44,11 @@ namespace MvcMusicStore
 
         protected void Application_Start()
         {
-            var settings = new Verde.Settings
+        	IContainer container= AutofacRegistration();
+
+        	ServiceLocator.SetLocatorProvider(() => new AutofacServiceLocator(container));
+
+        	var settings = new Verde.Settings
             {
                 TestsAssembly = System.Reflection.Assembly.GetExecutingAssembly(),
                 AuthorizationCheck = (context) =>
@@ -49,7 +57,8 @@ namespace MvcMusicStore
                     // invoke integration tests.  Maybe something like:
                     // return context.User.IsInRole("admin");
                     return true;
-                }
+                },
+				TestFixtureFactory = new CommonServiceLocatorTestFixtureFactory(ServiceLocator.Current)
             };
 
             // Because we are using Autofac for IoC, we need this step to ensure that HttpContextWrapper gets 
@@ -72,20 +81,30 @@ namespace MvcMusicStore
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
 
-            AutofacRegistration();
+            
         }
 
-        private void AutofacRegistration()
+        private IContainer AutofacRegistration()
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new AutofacWebTypesModule());
 
-            builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>();
-            builder.RegisterControllers(System.Reflection.Assembly.GetExecutingAssembly());
+        	Assembly executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+
+        	builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>();
+            builder.RegisterControllers(executingAssembly);
+
+			//Register all Integration Test Fixtures
+        	builder.RegisterAssemblyTypes(executingAssembly)
+        		.Where(t => t.GetCustomAttributes(typeof (IntegrationFixtureAttribute), false).Any())
+        		.AsSelf()
+        		.AsImplementedInterfaces();
 
             var container = builder.Build();
 
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
+        	return container;
         }
 
         // Used to override how HttpContextWrapper gets resolved on requests to /@integrationtests.
