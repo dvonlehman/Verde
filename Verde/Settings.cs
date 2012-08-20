@@ -53,6 +53,7 @@ namespace Verde
 		/// <summary>
 		/// Provide a factory to instantiate the test fixtures.
 		/// </summary>
+		[JsonIgnore]
     	public ITestFixtureFactory TestFixtureFactory { get; set; }
 
         /// <summary>
