@@ -36,7 +36,7 @@ namespace Verde
 			{
 				getInstanceMethod = serviceLocatorType.GetMethod("GetInstance", new Type[] { typeof(Type) });
 			}
-			catch (AmbiguousMatchException ex)
+			catch (AmbiguousMatchException)
 			{
 				throw new InvalidOperationException("The 'serviceLocator' object must have only one method of with signature : GetInstance(Type type)");
 			}

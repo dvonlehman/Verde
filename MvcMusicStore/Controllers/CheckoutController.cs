@@ -26,71 +26,35 @@ namespace MvcMusicStore.Controllers
             return View();
         }
 
-        //
-        // POST: /Checkout/AddressAndPayment
-
         [HttpPost]
-        public void AddressAndPaymentAsync(FormCollection values)
+        public ActionResult AddressAndPayment(FormCollection values)
         {
-            AsyncManager.OutstandingOperations.Increment();
-            var worker = new BackgroundWorker();
             var order = new Order();
-            bool success = true;
-
             TryUpdateModel(order);
 
             string promoCode = values["PromoCode"];
             if (!String.IsNullOrEmpty(promoCode) && !string.Equals(promoCode, PromoCode, StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError("", "Promo code is not valid.");
-                success = false;
+                //Invalid - redisplay with errors
+                return View(order);   
             }
 
             string userName = User.Identity.Name;
             var cart = ShoppingCart.GetCart(this.HttpContext);
 
-            worker.DoWork += (sender, args) =>
-            {
-                if (!success)
-                    return;
+            order.Username = userName;
+            order.OrderDate = DateTime.Now;
 
-                try
-                {
-                    order.Username = userName;
-                    order.OrderDate = DateTime.Now;
+            //Save Order
+            _entities.Orders.Add(order);
+            _entities.SaveChanges();
 
-                    //Save Order
-                    _entities.Orders.Add(order);
-                    _entities.SaveChanges();
+            //Process the order
+            cart.CreateOrder(order);
 
-                    //Process the order
-                    cart.CreateOrder(order);               
-                    success = true;
-                }
-                catch
-                {
-                    success = false;
-                }
-            };
-
-            worker.RunWorkerCompleted += (o, e) =>
-            {
-                AsyncManager.Parameters["order"] = order;
-                AsyncManager.Parameters["success"] = success;
-                AsyncManager.OutstandingOperations.Decrement();
-            };
-
-            worker.RunWorkerAsync(null);
-        }
-
-        public ActionResult AddressAndPaymentCompleted(Order order, bool success)
-        {
-            if (success)
-                return RedirectToAction("Complete",
+            return RedirectToAction("Complete",
                    new { id = order.OrderId });
-
-            //Invalid - redisplay with errors
-            return View(order);           
         }
 
         //

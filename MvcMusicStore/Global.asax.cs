@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Autofac;
@@ -19,36 +20,27 @@ namespace MvcMusicStore
 {
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
-
     public class MvcApplication : System.Web.HttpApplication
     {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
-        {
-            filters.Add(new HandleErrorAttribute());
-        }
-
-        public static void RegisterRoutes(RouteCollection routes)
-        {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            routes.IgnoreRoute("favicon.ico");
-            routes.IgnoreRoute("{*alljs}", new { alljs = @".*\.js" });
-
-            //routes.IgnoreRoute("{*pathInfo}/*.css")
-
-            routes.MapRoute(
-                "Default", // Route name
-                "{controller}/{action}/{id}", // URL with parameters
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
-            );
-        }
-
         protected void Application_Start()
         {
-        	IContainer container= AutofacRegistration();
+            IContainer container = AutofacRegistration();
+            ServiceLocator.SetLocatorProvider(() => new AutofacServiceLocator(container));
 
-        	ServiceLocator.SetLocatorProvider(() => new AutofacServiceLocator(container));
+            System.Data.Entity.Database.SetInitializer(new MvcMusicStore.Models.SampleData());
 
-        	var settings = new Verde.Settings
+            AreaRegistration.RegisterAllAreas();
+
+            WebApiConfig.Register(GlobalConfiguration.Configuration);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters); 
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            RegisterVerde();
+        }
+
+        private void RegisterVerde()
+        {
+            var settings = new Verde.Settings
             {
                 TestsAssembly = System.Reflection.Assembly.GetExecutingAssembly(),
                 AuthorizationCheck = (context) =>
@@ -58,7 +50,7 @@ namespace MvcMusicStore
                     // return context.User.IsInRole("admin");
                     return true;
                 },
-				TestFixtureFactory = new CommonServiceLocatorTestFixtureFactory(ServiceLocator.Current)
+                TestFixtureFactory = new CommonServiceLocatorTestFixtureFactory(ServiceLocator.Current)
             };
 
             // Because we are using Autofac for IoC, we need this step to ensure that HttpContextWrapper gets 
@@ -73,15 +65,6 @@ namespace MvcMusicStore
 
             // Conditionally invoke this line only if integration tests should be enabled in the current environment.
             Verde.Setup.Initialize(settings);
-
-            System.Data.Entity.Database.SetInitializer(new MvcMusicStore.Models.SampleData());
-
-            AreaRegistration.RegisterAllAreas();
-
-            RegisterGlobalFilters(GlobalFilters.Filters);
-            RegisterRoutes(RouteTable.Routes);
-
-            
         }
 
         private IContainer AutofacRegistration()
@@ -89,22 +72,22 @@ namespace MvcMusicStore
             var builder = new ContainerBuilder();
             builder.RegisterModule(new AutofacWebTypesModule());
 
-        	Assembly executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+            Assembly executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-        	builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>();
+            builder.RegisterType<MusicStoreEntities>().As<IMusicStoreEntities>();
             builder.RegisterControllers(executingAssembly);
 
-			//Register all Integration Test Fixtures
-        	builder.RegisterAssemblyTypes(executingAssembly)
-        		.Where(t => t.GetCustomAttributes(typeof (IntegrationFixtureAttribute), false).Any())
-        		.AsSelf()
-        		.AsImplementedInterfaces();
+            //Register all Integration Test Fixtures
+            builder.RegisterAssemblyTypes(executingAssembly)
+                .Where(t => t.GetCustomAttributes(typeof(IntegrationFixtureAttribute), false).Any())
+                .AsSelf()
+                .AsImplementedInterfaces();
 
             var container = builder.Build();
 
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
 
-        	return container;
+            return container;
         }
 
         // Used to override how HttpContextWrapper gets resolved on requests to /@integrationtests.
